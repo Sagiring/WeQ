@@ -55,7 +55,7 @@ def do_command(msg:str,addr,client_socket):
                 client_socket.send(b'0\r\n\r\n')
 
         elif command == 'register':
-            result = action[command](data['user'],data['passwd'])
+            result = action[command](data['user'],data['passwd'],data['email'])
             if result:
                 client_socket.send(b'1\r\n\r\n')
             else:

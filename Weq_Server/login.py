@@ -23,8 +23,8 @@ class Login:
                 return False
             
     @staticmethod       
-    def getRegister(username:str,passwd:str):
-        return sqlRegister([username,passwd])
+    def getRegister(username:str,passwd:str,email:str):
+        return sqlRegister([username,passwd,email])
 
     @staticmethod
     def addPubkey(username:str,pubkey:str):

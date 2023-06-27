@@ -3,22 +3,23 @@ import sqlite3
 def sqlRegister(accounts):
     username = accounts[0]
     password = accounts[1]
+    email = accounts[2]
 
 
     sql = '''select username
             from accounts
-            where username = "?"'''
+            where username = ?'''
 
     connection  = sqlite3.connect('WeQ.db')
     toSql = connection.cursor()
     try:
-        toSql.execute(sql,[username])
+        toSql.execute(sql,(username,))
     except Exception as e:
         print(e)
         return False
     result = toSql.fetchall()
     if result == []:
-        toSql.execute('insert into accounts values("?","?")',[username,password])
+        toSql.execute('insert into accounts values(?,?,?)',(username,password,email))
         connection.commit() 
         toSql.close()
         connection.close()
@@ -33,11 +34,11 @@ def sqlLogin(accounts):
     password = accounts[1]
     sql = '''select password
             from accounts 
-            where username = "?"'''
+            where username = ?'''
     connection  = sqlite3.connect('WeQ.db')
     toSql = connection.cursor()
     try:
-        toSql.execute(sql,[username])
+        toSql.execute(sql,(username,))
     except Exception as e:
         print(e)
         return False
