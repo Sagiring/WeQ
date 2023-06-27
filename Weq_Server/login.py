@@ -1,8 +1,15 @@
 from sql_splite3 import *
+import random
+import string
+from Crypto.PublicKey import RSA
+ 
+ 
+
+
 
 class Login:
     __ALL_User = {}
-    port = 66666
+    
     def __init__(self,username:str,addr) -> None:
         self.username = username
         self.addr = addr
@@ -14,7 +21,7 @@ class Login:
     @staticmethod
     def getLogin(username:str,passwd:str,addr):
         if username in Login.__ALL_User.keys():
-            return True
+            return Login.__ALL_User[username]
         else:
             result = sqlLogin([username,passwd])
             if result:
@@ -40,7 +47,26 @@ class Login:
             return Login.__ALL_User[sendto].pubkey
         else:
             return False
+    
+    @staticmethod
+    def getSessionkey():
+        all_char_set = string.printable
+        all_char_set*=16
+        key =''.join(random.sample(all_char_set,k=16))
+        return key
+    
+    @staticmethod
+    def getUser(username):
+        if username in Login.__ALL_User.keys():
+            return Login.__ALL_User[username]
+        else:
+            return False
 
+    def close(self):
+        Login.__ALL_User.pop(self.username)
+        return True
+
+    
 
 
 

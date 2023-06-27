@@ -38,7 +38,8 @@ def do_command(msg:str,addr,client_socket):
     action = {'login':Login.getLogin,
               'register':Login.getRegister,
               'addPubkey':Login.addPubkey,
-              'getPubkey':Login.getPubkey
+              'getPubkey':Login.getPubkey,
+              'close':Login.close
               }
     command = msg.split('\r\n\r\n')[0]
     if command not in action.keys():
@@ -49,32 +50,33 @@ def do_command(msg:str,addr,client_socket):
         data = json.loads(data)
         if command == 'login':
             result = action[command](data['user'],data['passwd'],addr)
-            if result:
-                client_socket.send(b'1\r\n\r\n')
-            else:
-                client_socket.send(b'0\r\n\r\n')
-
         elif command == 'register':
             result = action[command](data['user'],data['passwd'],data['email'])
-            if result:
-                client_socket.send(b'1\r\n\r\n')
-            else:
-                client_socket.send(b'0\r\n\r\n')
-
         elif command == 'addPubkey':
             result = action[command](data['user'],data['pubkey'])
-            if result:
-                client_socket.send(b'1\r\n\r\n')
+        elif command == 'close':
+            user = Login.getUser()
+            if user.addr == addr:
+                result = action[command]()
             else:
-                client_socket.send(b'0\r\n\r\n')
+                result = False
 
         elif command == 'getPubkey':
-            result = action[command](data['user'],data['sendto'])
+            pubkey = action[command](data['user'],data['sendto'])
+            aeskey = Login.getSessionkey()
             if result:
-                client_socket.send(result.encode('utf-8'))
+                result = {"pubkey": pubkey,
+                          "sessionkey": aeskey}
+                result = '1\r\n\r\n' + json.dump(result)
+                client_socket.send(+result.encode('utf-8'))
             else:
                 client_socket.send(b'0\r\n\r\n')
+            return result
 
+        if result:
+            client_socket.send(b'1\r\n\r\n')
+        else:
+            client_socket.send(b'0\r\n\r\n')
         return result
             
 
