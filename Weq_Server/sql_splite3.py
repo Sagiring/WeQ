@@ -76,7 +76,7 @@ def sql_get_friend(username):
             UNION ALL
             SELECT username
             From friends
-            WHERE friends = ?'''
+            WHERE friend_id = ?'''
     connection  = sqlite3.connect('WeQ.db')
     toSql = connection.cursor()
     try:

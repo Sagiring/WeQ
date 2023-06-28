@@ -26,9 +26,8 @@ class Login:
             result = sqlLogin([username,passwd])
             if result:
                 Login(username,addr)
-            else:
-                return False
-            
+            return result
+        
     @staticmethod       
     def getRegister(username:str,passwd:str,email:str):
         return sqlRegister([username,passwd,email])
@@ -71,8 +70,8 @@ class Login:
         user_str = []
         if Login.getUser(username):
             for user in Login.__ALL_User.keys():
-                user_str.append(user)
-            return ','.join(user_str)
+                user_str.append((user,))
+            return user_str
         else:
             return False
 
@@ -81,7 +80,7 @@ class Login:
         user = Login.getUser(username)
         result = False
         if user:
-            if addr == user.addr:
+            if addr[0] == user.addr[0]:
                 result  = sql_add_friend(username,friend_id)
         return result
                 
@@ -91,13 +90,17 @@ class Login:
         user = Login.getUser(username)
         result = False
         if user:
-            if addr == user.addr:
+            if addr[0] == user.addr[0]:
                 result  = sql_delete_friend(username,friend_id)
         return result
 
     @staticmethod
     def get_friends(username):
-        return sql_get_friend(username)   
+        user = Login.getUser(username)
+        result = False
+        if user:
+            result = sql_get_friend(username)  
+        return result 
 
     def close(self):
         Login.__ALL_User.pop(self.username)
