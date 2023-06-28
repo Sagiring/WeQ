@@ -50,8 +50,8 @@ def do_command(msg:str,addr,client_socket):
         return False
     else:
         data = msg.split('\r\n\r\n')[1]
-        print(data)
-        data = json.loads(data)
+        print(command+'--->'+data)
+        data = json.loads(data,strict=False)
         if command == 'login':
             result = action[command](data['user'],data['passwd'],addr)
         elif command == 'register':
@@ -72,14 +72,14 @@ def do_command(msg:str,addr,client_socket):
         elif command == 'getPubkey':
             pubkey = action[command](data['user'],data['sendto'])
             aeskey = Login.getSessionkey(data['user'])
-            if result:
+            if aeskey:
                 result = {"pubkey": pubkey,
                           "sessionkey": aeskey}
                 result = '1\r\n\r\n' + json.dumps(result)
                 client_socket.send(result.encode('utf-8'))
             else:
                 client_socket.send(b'0\r\n\r\n')
-            return result
+            return aeskey
         
         elif command == 'getFriends' or command == 'getAllusers':
             users = action[command](data['user'])

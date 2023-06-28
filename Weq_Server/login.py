@@ -3,7 +3,7 @@ import random
 import string
 from Crypto.Cipher  import PKCS1_v1_5 as PKCS1_cipher
 import base64
- 
+from Crypto.PublicKey import RSA
 
 
 
@@ -53,9 +53,14 @@ class Login:
         all_char_set*=16
         key =''.join(random.sample(all_char_set,k=16))
         user = Login.getUser(username)
-        pubkey = user.pubkey
+        public_key = user.pubkey
+        pubkey = RSA.importKey(public_key)
+        all_char_set = string.printable
+        all_char_set*=16
+        key =''.join(random.sample(all_char_set,k=16))
         cipher = PKCS1_cipher.new(pubkey)
         encrypto_key = base64.b64encode(cipher.encrypt(key.encode('utf-8')))
+        # print(encrypto_key.decode('utf-8'))
         return encrypto_key.decode('utf-8')
     
     
