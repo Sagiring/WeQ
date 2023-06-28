@@ -2,7 +2,8 @@ import socket
 import hashlib
 import json
 import re
-import rsa
+from Crypto import Random
+from Crypto.PublicKey import RSA
 
 def register():
     username = input("请输入用户名: ")
@@ -45,23 +46,15 @@ def check_password(password):
     return k
 
 def createkey():
-    (pubkey, privkey) = rsa.newkeys(1024)
-    # 生成公钥
-    pub = pubkey.save_pkcs1()
-
-    pubfile = open('public.pem', 'wb')
-    pubfile.write(pub)
-    pubfile.close()
-    f = rsa.PublicKey.load_pkcs1(pub)
-
+    random_generator = Random.new().read
+    rsa = RSA.generate(2048, random_generator)
     # 生成私钥
-    pri = privkey.save_pkcs1()
-    prifile = open('private.pem', 'wb')
-    prifile.write(pri)
-    prifile.close()
-    e = rsa.PrivateKey.load_pkcs1(pri)
+    private_key = rsa.exportKey()
+    # 生成公钥
+    public_key = rsa.publickey().exportKey()
 
-    return e,f
+
+    return public_key,private_key
 
 def address_book():
     username = input("请输入用户名: ")
