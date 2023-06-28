@@ -58,6 +58,7 @@ class Login:
         encrypto_key = base64.b64encode(cipher.encrypt(key.encode('utf-8')))
         return encrypto_key.decode('utf-8')
     
+    
     @staticmethod
     def getUser(username):
         if username in Login.__ALL_User.keys():
