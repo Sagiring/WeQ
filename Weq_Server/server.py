@@ -80,6 +80,7 @@ def do_command(msg:str,addr,client_socket):
                     client_socket.send(result.encode('utf-8'))
                 else:
                     client_socket.send(b'0\r\n\r\n')
+                client_socket.close()
                 return aeskey
             
             elif command == 'getFriends' or command == 'getAllusers':
@@ -99,10 +100,12 @@ def do_command(msg:str,addr,client_socket):
                 client_socket.send(b'1\r\n\r\n')
             else:
                 client_socket.send(b'0\r\n\r\n')
+            client_socket.close()
             return result
         except Exception as e:
             client_socket.send(b'ServerError '+ str(e).encode())
             print(e)
+        
 
 if __name__ == '__main__':
     server()
