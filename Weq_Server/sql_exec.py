@@ -4,16 +4,10 @@ import sqlite3
 conn = sqlite3.connect('WeQ.db')
 cursor = conn.cursor()
 
-# # 创建accounts表
-# cursor.execute('''CREATE TABLE IF NOT EXISTS accounts (
-#                     username TEXT,
-#                     password TEXT,
-#                     email TEXT
-#                 );''')
 
 
-cursor.execute('''CREATE TABLE IF NOT EXISTS friends (
-                    username TEXT,
+cursor.execute('''CREATE TABLE friends (
+                    username TEXT PRIMARY KEY,
                     friend_id TEXT
                 );''')
 

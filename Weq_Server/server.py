@@ -50,7 +50,7 @@ def do_command(msg:str,addr,client_socket):
         return False
     else:
         data = msg.split('\r\n\r\n')[1]
-        print(command+'--->'+data)
+        _logger.i(command+'--->'+data)
         data = json.loads(data,strict=False)
         try:
             if command == 'login':
@@ -101,7 +101,7 @@ def do_command(msg:str,addr,client_socket):
                 client_socket.send(b'0\r\n\r\n')
             return result
         except Exception as e:
-            client_socket.send(b'ServerError '+ str(e))
+            client_socket.send(b'ServerError '+ str(e).encode())
             print(e)
 
 if __name__ == '__main__':
