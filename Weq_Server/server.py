@@ -72,7 +72,7 @@ def do_command(msg:str,addr,client_socket):
         elif command == 'getPubkey':
             pubkey = action[command](data['user'],data['sendto'])
             aeskey = Login.getSessionkey(data['user'])
-            if aeskey:
+            if aeskey and pubkey:
                 result = {"pubkey": pubkey,
                           "sessionkey": aeskey}
                 result = '1\r\n\r\n' + json.dumps(result)
