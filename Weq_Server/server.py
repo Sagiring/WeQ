@@ -52,54 +52,57 @@ def do_command(msg:str,addr,client_socket):
         data = msg.split('\r\n\r\n')[1]
         print(command+'--->'+data)
         data = json.loads(data,strict=False)
-        if command == 'login':
-            result = action[command](data['user'],data['passwd'],addr)
-        elif command == 'register':
-            result = action[command](data['user'],data['passwd'],data['email'])
-        elif command == 'addPubkey':
-            result = action[command](data['user'],data['pubkey'])
-        elif command == 'close':
-            user = Login.getUser(data['user'])
-            if user:
-                if user.addr[0] == addr[0]:
-                    user.close()
-                    result = True
-                else:
-                    result = False
-        elif command == 'addFriend' or command == 'deleteFriend':
-            result = action[command](data['user'],data['friend'],addr)
+        try:
+            if command == 'login':
+                result = action[command](data['user'],data['passwd'],addr)
+            elif command == 'register':
+                result = action[command](data['user'],data['passwd'],data['email'])
+            elif command == 'addPubkey':
+                result = action[command](data['user'],data['pubkey'])
+            elif command == 'close':
+                user = Login.getUser(data['user'])
+                if user:
+                    if user.addr[0] == addr[0]:
+                        user.close()
+                        result = True
+                    else:
+                        result = False
+            elif command == 'addFriend' or command == 'deleteFriend':
+                result = action[command](data['user'],data['friend'],addr)
 
-        elif command == 'getPubkey':
-            pubkey = action[command](data['user'],data['sendto'])
-            aeskey = Login.getSessionkey(data['user'])
-            if aeskey and pubkey:
-                result = {"pubkey": pubkey,
-                          "sessionkey": aeskey}
-                result = '1\r\n\r\n' + json.dumps(result)
+            elif command == 'getPubkey':
+                pubkey = action[command](data['user'],data['sendto'])
+                aeskey = Login.getSessionkey(data['user'])
+                if aeskey and pubkey:
+                    result = {"pubkey": pubkey,
+                            "sessionkey": aeskey}
+                    result = '1\r\n\r\n' + json.dumps(result)
+                    client_socket.send(result.encode('utf-8'))
+                else:
+                    client_socket.send(b'0\r\n\r\n')
+                return aeskey
+            
+            elif command == 'getFriends' or command == 'getAllusers':
+                users = action[command](data['user'])
+                if users != False:
+                    users_list = []
+                    for item in users:
+                        users_list.append(item[0])
+                    users = ','.join(list(set(users_list)))
+                    result = {"user":users}
+                    result = '1\r\n\r\n' + json.dumps(result)
+                else:
+                    result ='0\r\n\r\n'
                 client_socket.send(result.encode('utf-8'))
+
+            if result:
+                client_socket.send(b'1\r\n\r\n')
             else:
                 client_socket.send(b'0\r\n\r\n')
-            return aeskey
-        
-        elif command == 'getFriends' or command == 'getAllusers':
-            users = action[command](data['user'])
-            if users != False:
-                users_list = []
-                for item in users:
-                    users_list.append(item[0])
-                users = ','.join(list(set(users_list)))
-                result = {"user":users}
-                result = '1\r\n\r\n' + json.dumps(result)
-            else:
-                result ='0\r\n\r\n'
-            client_socket.send(result.encode('utf-8'))
-
-        if result:
-            client_socket.send(b'1\r\n\r\n')
-        else:
-            client_socket.send(b'0\r\n\r\n')
-        return result
-            
+            return result
+        except Exception as e:
+            client_socket.send(b'ServerError '+ str(e))
+            print(e)
 
 if __name__ == '__main__':
     server()
