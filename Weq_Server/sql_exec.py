@@ -6,10 +6,7 @@ cursor = conn.cursor()
 
 
 
-cursor.execute('''CREATE TABLE friends (
-                    username TEXT PRIMARY KEY,
-                    friend_id TEXT
-                );''')
+cursor.execute('''delete from accounts where username = "Ming";''')
 
 
 conn.commit()
