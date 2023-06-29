@@ -110,6 +110,14 @@ class Login:
         if user:
             result = sql_get_friend(username)  
         return result 
+    @staticmethod
+    def getAddr(username,getUser):
+        user = Login.getUser(username)
+        if user:
+            user = Login.getUser(getUser)
+            if user:
+                return user.addr
+        return False
 
     def close(self):
         Login.__ALL_User.pop(self.username)

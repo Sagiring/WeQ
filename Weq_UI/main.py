@@ -240,7 +240,6 @@ if __name__ == "__main__":
     #     Friend("Charlie", "192.168.0.3", 9012),
     #     Friend("David", "192.168.0.4", 3456)
     # ]
-
     # # 模拟一些在线状态和最新消息的更新
     # friend_list_gui.set_online_status("Bob", True)
     # friend_list_gui.set_online_status("Charlie", True)
