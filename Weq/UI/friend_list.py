@@ -13,7 +13,7 @@ import time
 class Friend:
     def __init__(self, username, ip, port):
         self.username = username
-        self.ip = ip
+        self.ip = ip[1:-1]
         self.port = port
         self.online = False
         self.latest_message = ""
@@ -92,7 +92,6 @@ class FriendListGUI:
         for item in [addr[4][0] for addr in addrs]:
             if item[:2] == '10':
                 ip = item
-                
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.bind((ip, 6666))
         server.listen(5)

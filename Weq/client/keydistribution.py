@@ -31,7 +31,7 @@ class KeyDistribution:
             print('获取失败')
             client.close()
         else:
-            print(recv_data)
+            # print(recv_data)
             recv_data = json.loads(recv_data[1:])
             self.rsa_public_key = recv_data['pubkey']
             session_key = base64.b64decode(recv_data['sessionkey'])
@@ -57,8 +57,10 @@ class KeyDistribution:
             "port": self.port,
             "action": "chat"
         }
+
         data = json.dumps(data)
         sk = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        print((friend_ip, port))
         sk.connect((friend_ip, port))
         sk.send(data.encode('utf-8'))
         sk.close()

@@ -17,7 +17,7 @@ class ChatGUI(tk.Toplevel):
 
         self.max_image_width = 400  # 设置图片的最大宽度
         self.max_image_height = 300  # 设置图片的最大高度
-        Session = KeyDistribution.get_session_key(friend_ip= friend.ip)
+        Session = KeyDistribution.get_session_key(friend_ip = friend.ip)
         if Session:
             self.Session_key = Session
         else:
