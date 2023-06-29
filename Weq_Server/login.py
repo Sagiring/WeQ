@@ -109,7 +109,7 @@ class Login:
             result = sql_get_friend(username)  
             for user in result:
                 Addr = Login.getAddr(user[0])
-                friend_list[username] = str(Addr)
+                friend_list[user[0]] = str(Addr)
 
         return friend_list 
     
