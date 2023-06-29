@@ -71,12 +71,12 @@ class KeyDistribution:
         return self.session_key
 
     @staticmethod
-    def get_session_key_from_peer(priv_key, data,addr):
-        friend_ip = addr(0)
+    def get_session_key_from_peer(priv_key,data,addr):
+        friend_ip = addr[0]
         selfip = KeyDistribution.get_selfip()
         if selfip < friend_ip:
             selfip,friend_ip = friend_ip,selfip
-        data = base64.b64decode(data)
+        data = base64.b64decode(data['msg'])
         key = RSA.importKey(priv_key)
         cipher = PKCS1_cipher.new(key)
         data = cipher.decrypt(data, 0)

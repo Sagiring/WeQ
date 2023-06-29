@@ -98,7 +98,9 @@ class FriendListGUI:
         while 1:
             conn, addr = server.accept()
             data = json.loads(conn.recv(4096).decode('utf-8'))
-            if data['action'] == 'session':
+            print('已收到密钥')
+            if data['action'] == 'chat':
+                print('存储密钥')
                 self.session_key = KeyDistribution.get_session_key_from_peer(self.pri_key,data,addr)
 
     #加密信息
