@@ -79,7 +79,6 @@ class ChatGUI(tk.Toplevel):
                 msg = msg.decode()
             except TypeError:
                 msg = msg[len(b'img\r\n')+1:]
-                
                 # image_data = base64.b64decode(msg)
                 path = './img/'+int(time.localtime())+'.jpg'
                 with open(path,'wb') as f:
@@ -113,7 +112,6 @@ class ChatGUI(tk.Toplevel):
             self.send_image(file_path)
 
     def send_image(self, file_path):
-
         with open(file_path,'rb') as f:
             context = f.read()
         
@@ -124,7 +122,7 @@ class ChatGUI(tk.Toplevel):
         self.show_photo(file_path)
 
     def show_photo(self,file_path):
-                # 加载选定的图片
+        # 加载选定的图片
         image = Image.open(file_path)
         # 调整图片大小
         resized_image = self.resize_image(image)

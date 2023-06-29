@@ -36,7 +36,11 @@ class Client:
     def recv_msg(self,isByte = True):
             try:
                 conn, addr = self.server.accept()
-                msg = conn.recv(8192)
+                while 1:
+                    data = conn.recv(1024)
+                    msg += data
+                    if  len(data) < 1024:
+                        break
                 key = self.session_key
                 cipher = AES.new(key, AES.MODE_ECB)
                 if isByte:

@@ -24,7 +24,7 @@ class FriendListGUI:
         self.friends = []  # 存储好友信息的列表
         self.current_user = None  # 当前用户的用户名
 
-        self.root = tk.Tk()
+        self.root = tk.Toplevel()
         self.root.title("好友列表")
         self.root.geometry("480x300")
         self.pri_key = pri_key
