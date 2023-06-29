@@ -4,6 +4,10 @@ from ..login_friend_logic import *
 from .chat_gui import ChatGUI
 from PIL import Image, ImageTk
 from tkinter import filedialog
+import socket
+import json
+from ..client import KeyDistribution
+import threading
 
 class Friend:
     def __init__(self, username, ip, port):
@@ -69,6 +73,24 @@ class FriendListGUI:
             command=self.Encrypt_images
         )
         self.add_friend_button.pack(side=tk.LEFT, padx=30, pady=10)
+
+        key_server = threading.Thread(target=key_server)
+        key_server.start()
+
+    def key_server(self):
+        addrs = socket.getaddrinfo(socket.gethostname(), None)
+        for item in [addr[4][0] for addr in addrs]:
+            if item[:2] == '10':
+                ip = item
+                
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.bind((ip, 6666))
+        server.listen(5)
+        while 1:
+            conn, addr = server.accept()
+            data = json.loads(conn.recv(4096).decode('utf-8'))
+            if data['action'] == 'session':
+                self.session_key = KeyDistribution.get_session_key_from_peer(self.pri_key,data,addr)
 
     #加密信息
     def Encrypt_images(self):

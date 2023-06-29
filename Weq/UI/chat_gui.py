@@ -17,11 +17,13 @@ class ChatGUI(tk.Toplevel):
 
         self.max_image_width = 400  # 设置图片的最大宽度
         self.max_image_height = 300  # 设置图片的最大高度
-
-        keyDis =  KeyDistribution(pri_key)
-        keyDis.get_session_key_from_server(current_user,friend.username)
-        keyDis.send_session_key_to_peer(friend.ip)
-
+        Session = KeyDistribution.get_session_key(friend_ip= friend.ip)
+        if Session:
+            self.Session_key = Session
+        else:
+            Distributer = KeyDistribution(pri_key)
+            Distributer.get_session_key_from_server(current_user,friend.username)
+            self.Session_key = Distributer.send_session_key_to_peer(friend.ip)
 
         self.create_widgets()  # 创建聊天界面的各个部件。
         self.load_messages()  # 加载显示聊天消息。

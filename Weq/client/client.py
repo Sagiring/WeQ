@@ -7,13 +7,13 @@ from threading import Thread
 BLOCK_SIZE = 16
 
 class Client:
-    def __init__(self, port = 8888):
-        self.session_key = ''
+    def __init__(self,session_key ,port = 8888):
+        self.session_key = session_key
         addrs = socket.getaddrinfo(socket.gethostname(), None)
         for item in [addr[4][0] for addr in addrs]:
             if item[:2] == '10':
                 ip = item
-                
+
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.bind((ip, port))
         self.server.listen(5)
