@@ -30,7 +30,8 @@ class Client:
             msg = cipher.encrypt(pad(msg.encode('utf-8'), BLOCK_SIZE))
         conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         conn.connect((recv_ip, recv_port))
-        conn.send((str(len(msg)) + '\r\n\r\n').encode() + msg)
+        print((str(len(msg))).encode())
+        conn.send((str(len(msg))).encode()+ b'\r\n\r\n' + msg)
         
 
 
@@ -38,7 +39,8 @@ class Client:
     def recv_msg(self,isByte = True):
             try:
                 conn, addr = self.server.accept()
-                data = conn.recv(4096)
+                data = conn.recv(1024)
+                print(data.split(b'\r\n\r\n')[0])
                 dataLen = int(data.split(b'\r\n\r\n')[0].decode())
                 msg = data.split(b'\r\n\r\n')[1]
                 Len = len(msg)
