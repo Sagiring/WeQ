@@ -3,7 +3,6 @@ import socket
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 from threading import Thread
-import base64
 BLOCK_SIZE = 16
 
 class Client:

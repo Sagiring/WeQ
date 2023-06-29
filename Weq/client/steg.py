@@ -1,7 +1,7 @@
 from PIL import Image
 
 class LSB:
-    def __init__(self, raw_img, new_img):
+    def __init__(self,new_img, raw_img = ''):
         self.raw_img = raw_img
         self.new_img = new_img
 
@@ -41,18 +41,21 @@ class LSB:
                     break
 
                 r -= self.mod(r, 2) + int(info[count])
+                r %= 256
                 count += 1
                 if count == info_length:
                     img.putpixel((w, h), (r, g, b))
                     break
 
                 g -= self.mod(g, 2) + int(info[count])
+                g %= 256
                 count += 1
                 if count == info_length:
                     img.putpixel((w, h), (r, g, b))
                     break
 
                 b -= self.mod(b, 2) + int(info[count])
+                b %= 256
                 count += 1
                 if count == info_length:
                     img.putpixel((w, h), (r, g, b))
@@ -63,7 +66,8 @@ class LSB:
 
         img.save(self.new_img)
 
-    def get_data(self, new_img, length=255):
+    def get_data(self,length=255):
+        new_img = self.new_img
         img = Image.open(new_img)
         width, height = img.size
         length *= 8

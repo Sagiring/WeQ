@@ -6,7 +6,7 @@ from PIL import Image, ImageTk
 from tkinter import filedialog
 import socket
 import json
-from ..client import KeyDistribution
+from ..client import KeyDistribution,LSB
 import threading
 import time
 
@@ -114,31 +114,55 @@ class FriendListGUI:
         input_entry = tk.Entry(encrypt_window)
         input_entry.pack(side=tk.LEFT, padx=10, pady=10)
 
+
+
+        def crypto_photo(old_img):
+            msg = input_entry.get()
+            if msg:
+                new_img = './img/Encrypto.jpg'
+                lsb = LSB(raw_img=old_img,new_img=new_img)
+                lsb.hide_data(msg)
+                return True
+
+            else:
+                return False
+
         # 加号符号
         def open_image():
             file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.png;*.jpg;*.jpeg")])
-            if file_path:
-                image = Image.open(file_path)
-                image.thumbnail((200, 200))  # 缩放图片大小为合适的尺寸
-                image_tk = ImageTk.PhotoImage(image)
-                image_label.configure(image=image_tk)
-                image_label.image = image_tk  # 保存对图片对象的引用
-
-        plus_label = tk.Label(encrypt_window, text="+", cursor="hand2")
+            return crypto_photo(file_path)
+            # if file_path:
+            #     image = Image.open(file_path)
+            #     image.thumbnail((200, 200))  # 缩放图片大小为合适的尺寸
+            #     image_tk = ImageTk.PhotoImage(image)
+            #     image_label.configure(image=image_tk)
+            #     image_label.image = image_tk  # 保存对图片对象的引用
+            #     filepath['file_path'] = file_path
+                
+           
+        
+        plus_label = tk.Label(encrypt_window, text="加密图片", cursor="hand2")
         plus_label.pack(side=tk.LEFT, padx=10)
         plus_label.bind("<Button-1>", lambda event: open_image())  # 绑定点击事件，调用open_image函数
 
+     
         # 图片框
-        image_frame = tk.Frame(encrypt_window)
-        image_frame.pack(side=tk.LEFT, padx=10)
+        # image_frame = tk.Frame(encrypt_window)
+        # image_frame.pack(side=tk.LEFT, padx=10)
 
-        image_label = tk.Label(image_frame)
-        image_label.pack()
+        # image_label = tk.Label(image_frame)
+        # image_label.pack()
 
-        # 等号符号
-        equal_label = tk.Label(encrypt_window, text="=",cursor="hand2")
-        equal_label.pack(side=tk.LEFT, padx=10)
-        plus_label.bind("<Button-1>", lambda event: open_image())#这里的event还没添加
+
+    
+
+            
+        # # 等号符号
+        # equal_label = tk.Label(encrypt_window, text="加密图片",cursor="hand2")
+        # equal_label.pack(side=tk.LEFT, padx=10)
+        # plus_label.bind("<Button-2>", lambda event: crypto_photo(filepath["file_path"]))#这里的event还没添加
+
+ 
 
     # 解密信息
     def Decrypt_images(self):
@@ -158,50 +182,57 @@ class FriendListGUI:
         image_label.pack()
 
         # 添加图片按钮
+
+        
+        # file_path = {'file_path':''}
         def add_image():
             file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.png;*.jpg;*.jpeg")])
-            if file_path:
-                image = Image.open(file_path)
-                image.thumbnail((200, 200))  # 缩放图片大小为合适的尺寸
-                image_tk = ImageTk.PhotoImage(image)
-                image_label.configure(image=image_tk)
-                image_label.image = image_tk  # 保存对图片对象的引用
+            return file_path
+            # if file_path:
+            #     image = Image.open(file_path)
+            #     image.thumbnail((200, 200))  # 缩放图片大小为合适的尺寸
+            #     image_tk = ImageTk.PhotoImage(image)
+            #     image_label.configure(image=image_tk)
+            #     image_label.image = image_tk  # 保存对图片对象的引用
+                # file_path['file_path'] = file_path
         
-        add_image_button = tk.Button(decrypt_window, text="添加图片", command=add_image)
-        add_image_button.pack(side=tk.LEFT, padx=10, pady=10)
+        # add_image_button = tk.Button(decrypt_window, text="添加图片", command=add_image)
+        # add_image_button.pack(side=tk.LEFT, padx=10, pady=10)
 
         def get_information():
             # 在这里编写获取信息的逻辑
-            information = "这是获取到的信息"  # 替换为实际的获取信息的逻辑
+            file_path = add_image()
+            lsb = LSB(new_img=file_path)
+            information =  lsb.get_data()
             information_text.insert(tk.END, information + "\n")
 
 
-        get_info_button = tk.Button(decrypt_window, text="获取信息", command=get_information)
+        get_info_button = tk.Button(decrypt_window, text="获取信息", command=lambda: get_information())
         get_info_button.pack(side=tk.LEFT, padx=10, pady=10)
 
         # 文本框用于输出信息
         information_text = tk.Text(decrypt_window, height=5, width=30)
         information_text.pack(side=tk.LEFT, padx=10, pady=10)
 
-        # 将滚动条与文本框关联
-        scrollbar.config(command=information_text.yview)
-        information_text.config(yscrollcommand=scrollbar.set)
-        # # 创建滚动条
-        # scrollbar = tk.Scrollbar(decrypt_window)
-        # scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        # # 将滚动条与文本框关联
+        # scrollbar.config(command=information_text.yview)
+        # information_text.config(yscrollcommand=scrollbar.set)
+        # # # 创建滚动条
+        # # scrollbar = tk.Scrollbar(decrypt_window)
+        # # scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-        # 创建全局滚动条
-        main_scrollbar = tk.Scrollbar(decrypt_window)
-        main_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        # 将滚动条与文本框关联
-        scrollbar.config(command=information_text.yview)
-        information_text.config(yscrollcommand=scrollbar.set)
-        # 创建一个框架，用于容纳所有部件
-        main_frame = tk.Frame(decrypt_window)
-        main_frame.pack(padx=10, pady=10)
-        # 将主框架与滚动条关联
-        main_scrollbar.config(command=main_frame.yview)
-        main_frame.config(yscrollcommand=main_scrollbar.set)
+        # # 创建全局滚动条
+        # main_scrollbar = tk.Scrollbar(decrypt_window)
+        # main_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        # # 将滚动条与文本框关联
+        # scrollbar.config(command=information_text.yview)
+        # information_text.config(yscrollcommand=scrollbar.set)
+        # # 创建一个框架，用于容纳所有部件
+        # main_frame = tk.Frame(decrypt_window)
+        # main_frame.pack(padx=10, pady=10)
+        # # 将主框架与滚动条关联
+        # main_scrollbar.config(command=main_frame.yview)
+        # main_frame.config(yscrollcommand=main_scrollbar.set)
 
     def open_add_friend_dialog(self):
         # 创建添加好友对话框
@@ -311,11 +342,14 @@ class FriendListGUI:
         self.friends =  []
         self.friend_listbox.delete(0,tk.END)
         friend_list = getFriends(self.current_user)
-        for item in friend_list:
-            friend = Friend(item[0], item[1], item[2])
-            if item[1] != '0':
-                friend.online = True
-            self.friends.append(friend)
+        if friend_list:
+            for item in friend_list:
+                friend = Friend(item[0], item[1], item[2])
+                if item[1] != '0':
+                    friend.online = True
+                self.friends.append(friend)
+        else:
+            return False
 
         # 按照在线状态和最近聊天将好友排序
         sorted_friends = sorted(
