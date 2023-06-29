@@ -2,18 +2,26 @@ from PIL import Image, ImageTk
 import tkinter as tk
 from datetime import datetime
 from tkinter import filedialog
+from ..client import KeyDistribution,Client
 
 class ChatGUI(tk.Toplevel):
-    def __init__(self, parent, current_user, messages):
+    def __init__(self, parent, current_user, messages,friend,pri_key):
         super().__init__(parent)
         self.title("聊天界面")
         self.geometry("500x400")
-
+        self.friend = friend
+        self.pri_key = pri_key
+        
         self.current_user = current_user
         self.messages = messages
 
         self.max_image_width = 400  # 设置图片的最大宽度
         self.max_image_height = 300  # 设置图片的最大高度
+
+        keyDis =  KeyDistribution(pri_key)
+        keyDis.get_session_key_from_server(current_user,friend.username)
+        keyDis.send_session_key_to_peer(friend.ip)
+
 
         self.create_widgets()  # 创建聊天界面的各个部件。
         self.load_messages()  # 加载显示聊天消息。
@@ -37,10 +45,17 @@ class ChatGUI(tk.Toplevel):
     # 处理发送消息的逻辑
     def send_message(self):
         message = self.message_entry.get() # 获取用户在文本输入框中输入的消息内容
+        friend_ip = self.friend.ip
+        client = Client()
+        client.send_msg(friend_ip,message)
+
         if message:
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # 获取当前时间，并将其格式化为字符串表示
-            self.add_message(self.current_user, timestamp, message)
+            # self.add_message(self.current_user, timestamp, message)
             self.message_entry.delete(0, tk.END) # 清空文本输入框
+
+
+
 
     # 发送图片
     def select_image(self):

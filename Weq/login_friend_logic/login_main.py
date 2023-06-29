@@ -52,7 +52,7 @@ def addPubkey(username):
             return False
         else:
             print("公钥添加成功！")
-            return True,Privkey
+            return Privkey
 
 def close(username):
     t={"user": username}

@@ -13,9 +13,9 @@ class InstantMessengerApp(tk.Tk):
         
         self.show_login_page()
 
-    def show_friend_list_page(self, username):
+    def show_friend_list_page(self, username,pri_key):
         self.hide()
-        friend_list = FriendListGUI()
+        friend_list = FriendListGUI(pri_key)
         friend_list.current_user = username
         friend_list.run()
         self.destroy()
@@ -65,9 +65,9 @@ class LoginPage(tk.Frame):
         result = Weq.login(username,password)
         if result:
             messagebox.showinfo("登录", "登录成功")
-            result = Weq.addPubkey(username)
-            if result:
-                self.master.show_friend_list_page(username)  # 修改这一行
+            pri_key = Weq.addPubkey(username)
+            if pri_key:
+                self.master.show_friend_list_page(username,pri_key)  # 修改这一行
         else:
             messagebox.showinfo("登录", "用户名或密码错误")
 

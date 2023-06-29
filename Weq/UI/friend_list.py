@@ -15,14 +15,14 @@ class Friend:
         self.unread_messages = 0
 
 class FriendListGUI:
-    def __init__(self):
+    def __init__(self,pri_key):
         self.friends = []  # 存储好友信息的列表
         self.current_user = None  # 当前用户的用户名
 
         self.root = tk.Tk()
         self.root.title("好友列表")
         self.root.geometry("480x300")
-
+        self.pri_key = pri_key
         self.friend_frame = tk.Frame(self.root)
         self.friend_frame.pack(pady=10)
 
@@ -335,7 +335,7 @@ class FriendListGUI:
             selected_friend = self.friends[selected_friend_index]
 
             messages = []  # 存储消息的列表
-            chat_window = ChatGUI(self.root, self.current_user, messages)
+            chat_window = ChatGUI(self.root, self.current_user, messages,selected_friend,self.pri_key)
             chat_window.title(f"与 {selected_friend.username} 的聊天")
             chat_window.geometry("500x400")
 
