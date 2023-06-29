@@ -36,8 +36,7 @@ class ChatGUI(tk.Toplevel):
 
         self.create_widgets()  # 创建聊天界面的各个部件。
         self.load_messages()  # 加载显示聊天消息。
-        self.root = tk.Tk()
-        self.root.protocol('WM_DELETE_WINDOW', self.close)
+        self.protocol('WM_DELETE_WINDOW', self.close)
 
 
     def create_widgets(self):
