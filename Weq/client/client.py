@@ -3,7 +3,7 @@ import socket
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 from threading import Thread
-
+import base64
 BLOCK_SIZE = 16
 
 class Client:
@@ -25,16 +25,21 @@ class Client:
         key = self.session_key
         cipher = AES.new(key, AES.MODE_ECB)
         msg = cipher.encrypt(pad(msg.encode('utf-8'), BLOCK_SIZE))
+        print(base64.b64encode(msg))
+        print(base64.b64encode(key))
+        print('-------')
         conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         conn.connect((recv_ip, recv_port))
-        conn.send(msg)
+        conn.send(base64.b64encode(msg))
 
 
     def recv_msg(self):
             try:
                 conn, addr = self.server.accept()
-                msg = conn.recv(4096)
+                msg = base64.b64decode(conn.recv(4096))
                 key = self.session_key
+                print(base64.b64encode(msg))
+                print(base64.b64encode(key))
                 cipher = AES.new(key, AES.MODE_ECB)
                 msg = unpad(cipher.decrypt(msg), BLOCK_SIZE).decode('utf-8', errors='ignore')
                 return msg
