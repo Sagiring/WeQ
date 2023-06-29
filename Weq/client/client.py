@@ -3,6 +3,7 @@ import socket
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 from threading import Thread
+import traceback
 BLOCK_SIZE = 16
 
 class Client:
@@ -30,6 +31,7 @@ class Client:
         conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         conn.connect((recv_ip, recv_port))
         conn.send(msg)
+        print(len(msg))
 
 
 
@@ -38,10 +40,11 @@ class Client:
                 conn, addr = self.server.accept()
                 msg = b''
                 while 1:
-                    data = conn.recv(1024)
+                    data = conn.recv(8192)
                     msg += data
-                    if  len(data) < 1024:
+                    if  len(data) < 8192:
                         break
+                print(len(msg))
                 key = self.session_key
                 cipher = AES.new(key, AES.MODE_ECB)
                 if isByte:
@@ -58,7 +61,7 @@ class Client:
                 #     conn.close()
             except Exception as e:
                 print(e)
-                exit()
+                traceback.print_exc()
 
     def chat(self, recv_ip, recv_port):
         t1 = Thread(target=self.recv_msg)
