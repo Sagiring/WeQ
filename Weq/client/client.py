@@ -36,6 +36,7 @@ class Client:
     def recv_msg(self,isByte = True):
             try:
                 conn, addr = self.server.accept()
+                msg = b''
                 while 1:
                     data = conn.recv(1024)
                     msg += data
