@@ -20,14 +20,11 @@ class Login:
 
     @staticmethod
     def getLogin(username:str,passwd:str,addr):
-        if username in Login.__ALL_User.keys():
-            return Login.__ALL_User[username]
-        else:
-            result = sqlLogin([username,passwd])
-            if result:
-                Login(username,addr)
-            return result
-        
+        result = sqlLogin([username,passwd])
+        if result:
+            Login(username,addr)
+        return result
+    
     @staticmethod       
     def getRegister(username:str,passwd:str,email:str):
         return sqlRegister([username,passwd,email])
@@ -107,17 +104,22 @@ class Login:
     def get_friends(username):
         user = Login.getUser(username)
         result = False
+        friend_list  = {}
         if user:
             result = sql_get_friend(username)  
-        return result 
+            for user in result:
+                Addr = Login.getAddr(user[0])
+                friend_list[username] = str(Addr)
+
+        return friend_list 
+    
     @staticmethod
-    def getAddr(username,getUser):
-        user = Login.getUser(username)
+    def getAddr(getUser):
+        user = Login.getUser(getUser)
         if user:
-            user = Login.getUser(getUser)
-            if user:
-                return user.addr
-        return False
+            return user.addr
+        return(0,0)
+ 
 
     def close(self):
         Login.__ALL_User.pop(self.username)

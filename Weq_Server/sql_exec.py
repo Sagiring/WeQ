@@ -6,7 +6,7 @@ cursor = conn.cursor()
 
 
 
-cursor.execute('''delete from accounts where username = "Ming";''')
+cursor.execute('''ALTER TABLE friends_backup RENAME TO friends''')
 
 
 conn.commit()
