@@ -87,6 +87,7 @@ class ChatGUI(tk.Toplevel):
                 path = './img/'+str(time_stamp)+'.jpg'
                 with open(path,'wb') as f:
                     f.write(msg)
+                time.sleep(1)
                 self.show_photo(path)
                 return 0
 
