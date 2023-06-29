@@ -32,20 +32,20 @@ class Client:
 
 
     def recv_msg(self):
-        while True:
             try:
                 conn, addr = self.server.accept()
                 msg = conn.recv(4096)
                 key = self.session_key
                 cipher = AES.new(key, AES.MODE_ECB)
                 msg = unpad(cipher.decrypt(msg), BLOCK_SIZE).decode('utf-8', errors='ignore')
-                if msg == 'quit':
-                    print('对方退出聊天')
-                    conn.close()
-                    break
-                else:
-                    print(f'{addr} say:', msg)
-                    conn.close()
+                return msg
+                # if msg == 'quit':
+                #     print('对方退出聊天')
+                #     conn.close()
+                #     break
+                # else:
+                #     print(f'{addr} say:', msg)
+                #     conn.close()
             except Exception as e:
                 print(e)
                 exit()

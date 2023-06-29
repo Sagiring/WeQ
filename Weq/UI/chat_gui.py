@@ -3,6 +3,7 @@ import tkinter as tk
 from datetime import datetime
 from tkinter import filedialog
 from ..client import KeyDistribution,Client
+import threading
 
 class ChatGUI(tk.Toplevel):
     def __init__(self, parent, current_user, messages,friend,pri_key):
@@ -24,9 +25,20 @@ class ChatGUI(tk.Toplevel):
             Distributer = KeyDistribution(pri_key)
             Distributer.get_session_key_from_server(current_user,friend.username)
             self.Session_key = Distributer.send_session_key_to_peer(friend.ip)
+        self.client = Client(self.Session_key)
+        recv_isRunning = threading.Event()
+        recv_isRunning.set()
+        self.recv_isRunning = recv_isRunning
+
+        recv_threading = threading.Thread(target=self.recv_msg,args=(recv_isRunning,))
+        recv_threading.start()
+
 
         self.create_widgets()  # 创建聊天界面的各个部件。
         self.load_messages()  # 加载显示聊天消息。
+        root = tk.Tk()
+        root.protocol('WM_DELETE_WINDOW', self.close)
+
 
     def create_widgets(self):
         self.message_box = tk.Text(self) # 文本框显示消息
@@ -47,17 +59,23 @@ class ChatGUI(tk.Toplevel):
     # 处理发送消息的逻辑
     def send_message(self):
         message = self.message_entry.get() # 获取用户在文本输入框中输入的消息内容
-        friend_ip = self.friend.ip
-        client = Client()
-        client.send_msg(friend_ip,message)
-
         if message:
+            friend_ip = self.friend.ip
+            self.client.send_msg(friend_ip,message)
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # 获取当前时间，并将其格式化为字符串表示
-            # self.add_message(self.current_user, timestamp, message)
+            self.add_message(self.current_user, timestamp, message)
             self.message_entry.delete(0, tk.END) # 清空文本输入框
 
 
+    def recv_msg(self,event:threading.Event):
+        while event.is_set():
+            msg = self.client.recv_msg()
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # 获取当前时间，并将其格式化为字符串表示
+            self.add_message(self.current_user, timestamp, msg)
 
+    def close(self):
+        self.recv_isRunning.clear()
+        self.destroy()
 
     # 发送图片
     def select_image(self):
