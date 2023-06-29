@@ -5,6 +5,7 @@ from tkinter import filedialog
 from ..client import KeyDistribution,Client
 import threading
 import time
+import base64
 
 class ChatGUI(tk.Toplevel):
     def __init__(self, parent, current_user, messages,friend,pri_key):
@@ -66,6 +67,7 @@ class ChatGUI(tk.Toplevel):
             friend_ip = self.friend.ip
             self.client.send_msg(friend_ip,message)
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # 获取当前时间，并将其格式化为字符串表示
+            message = message.split('\r\n')[1]
             self.add_message(self.current_user, timestamp, message)
             self.message_entry.delete(0, tk.END) # 清空文本输入框
 
@@ -79,9 +81,11 @@ class ChatGUI(tk.Toplevel):
                 self.add_message(self.friend.username, timestamp, msg)
             elif msg.split('\r\n')[0] == 'img':
                 msg = msg.split('\r\n')[1]
+                
+                image_data = base64.b64decode(msg)
                 path = './img/'+int(time.localtime())+'.jpg'
-                with open(path,'w') as f:
-                    f.write(msg)
+                with open(path,'wb') as f:
+                    f.write(image_data)
                 self.show_photo(path)
                 
 
@@ -98,9 +102,11 @@ class ChatGUI(tk.Toplevel):
 
     def send_image(self, file_path):
 
-        with open(file_path,'r') as f:
+        with open(file_path,'rb') as f:
             context = f.read()
-        context = 'img\r\n' + context
+        
+        image_str = base64.encodebytes(context).decode("utf-8")
+        context = 'img\r\n' + image_str
         friend_ip = self.friend.ip
         self.client.send_msg(friend_ip,context)
         self.show_photo(file_path)
