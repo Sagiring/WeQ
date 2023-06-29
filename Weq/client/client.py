@@ -26,21 +26,18 @@ class Client:
         cipher = AES.new(key, AES.MODE_ECB)
         msg = base64.b64encode(msg.encode('utf-8'))
         msg = cipher.encrypt(pad(msg, BLOCK_SIZE))
-        print(base64.b64encode(msg))
-        print(base64.b64encode(key))
+        print(msg)
         conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         conn.connect((recv_ip, recv_port))
-        conn.send(base64.b64encode(msg))
+        conn.send(msg)
 
 
 
     def recv_msg(self):
             try:
                 conn, addr = self.server.accept()
-                msg = base64.b64decode(conn.recv(8192))
+                msg = conn.recv(8192)
                 key = self.session_key
-                print(base64.b64decode(msg))
-                print(base64.b64decode(key))
                 cipher = AES.new(key, AES.MODE_ECB)
                 msg = unpad(cipher.decrypt(msg), BLOCK_SIZE).decode('utf-8', errors='ignore')
                 return base64.b64decode(msg)
