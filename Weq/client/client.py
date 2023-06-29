@@ -45,11 +45,12 @@ class Client:
                 msg = data.split(b'\r\n\r\n')[1]
                 Len = len(msg)
                 while 1:
+                    if  Len >= dataLen:
+                        break
                     data = conn.recv(4096)
                     msg += data
                     Len += len(data)
-                    if  Len > dataLen:
-                        break
+                    
 
                 print(len(msg))
                 key = self.session_key
