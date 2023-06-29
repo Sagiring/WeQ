@@ -1,7 +1,7 @@
 import socket
 import threading
 from log import Log
-from login import Login
+from main import Login
 import json
 _logger = Log()
 

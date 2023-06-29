@@ -19,4 +19,4 @@ client_socket.send(b'getAllusers\r\n\r\n{"user":"Ming"}')
 # print(client_socket.recv(5))
 
 client_socket.send(b'getPubkey\r\n\r\n{"user":"Ming","sendto":"Ming"}')
-print(client_socket.recv(1024))
+# print(client_socket.recv(1024))

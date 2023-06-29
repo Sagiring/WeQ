@@ -1,7 +1,5 @@
 import tkinter as tk
 from tkinter import messagebox
-from datetime import datetime
-from chat_gui2 import ChatGUI
 from main import FriendListGUI
 
 class InstantMessengerApp(tk.Tk):
