@@ -24,8 +24,7 @@ class Client:
     def send_msg(self, recv_ip, msg, recv_port=8888):
         key = self.session_key
         cipher = AES.new(key, AES.MODE_ECB)
-        msg = base64.b64encode(msg.encode('utf-8'))
-        msg = cipher.encrypt(pad(msg, BLOCK_SIZE))
+        msg = cipher.encrypt(msg.encode())
         print(msg)
         conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         conn.connect((recv_ip, recv_port))
@@ -37,10 +36,11 @@ class Client:
             try:
                 conn, addr = self.server.accept()
                 msg = conn.recv(8192)
+                print(msg)
                 key = self.session_key
                 cipher = AES.new(key, AES.MODE_ECB)
-                msg = unpad(cipher.decrypt(msg), BLOCK_SIZE).decode('utf-8', errors='ignore')
-                return base64.b64decode(msg)
+                msg = cipher.decrypt(msg).decode()
+                return msg
                 # if msg == 'quit':
                 #     print('对方退出聊天')
                 #     conn.close()
