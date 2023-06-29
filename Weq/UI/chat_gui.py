@@ -80,7 +80,7 @@ class ChatGUI(tk.Toplevel):
             elif msg.split('\r\n')[0] == 'img':
                 msg = msg.split('\r\n')[1]
                 path = './img/'+int(time.localtime())+'.jpg'
-                with open(path,'w',encoding='utf-8') as f:
+                with open(path,'w') as f:
                     f.write(msg)
                 self.show_photo(path)
                 
@@ -98,7 +98,7 @@ class ChatGUI(tk.Toplevel):
 
     def send_image(self, file_path):
 
-        with open(file_path,'r',encoding='utf-8') as f:
+        with open(file_path,'r') as f:
             context = f.read()
         context = 'img\r\n' + context
         friend_ip = self.friend.ip
