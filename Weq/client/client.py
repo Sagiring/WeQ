@@ -25,7 +25,6 @@ class Client:
         key = self.session_key
         cipher = AES.new(key, AES.MODE_ECB)
         msg = cipher.encrypt(pad(msg.encode('utf-8'), BLOCK_SIZE))
-
         conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         conn.connect((recv_ip, recv_port))
         conn.send(msg)
