@@ -30,20 +30,25 @@ class Client:
             msg = cipher.encrypt(pad(msg.encode('utf-8'), BLOCK_SIZE))
         conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         conn.connect((recv_ip, recv_port))
-        conn.send(msg)
-        print(len(msg))
+        conn.send((str(len(msg)) + '\r\n\r\n').encode() + msg)
+        
 
 
 
     def recv_msg(self,isByte = True):
             try:
                 conn, addr = self.server.accept()
-                msg = b''
+                data = conn.recv(4096)
+                dataLen = int(data.split(b'\r\n\r\n')[0].decode())
+                msg = data.split(b'\r\n\r\n')[1]
+                Len = len(msg)
                 while 1:
-                    data = conn.recv(8192)
+                    data = conn.recv(4096)
                     msg += data
-                    if  len(data) < 8192:
+                    Len += len(data)
+                    if  Len > dataLen:
                         break
+
                 print(len(msg))
                 key = self.session_key
                 cipher = AES.new(key, AES.MODE_ECB)
