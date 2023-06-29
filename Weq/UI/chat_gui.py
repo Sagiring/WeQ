@@ -72,7 +72,7 @@ class ChatGUI(tk.Toplevel):
         while event.is_set():
             msg = self.client.recv_msg()
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # 获取当前时间，并将其格式化为字符串表示
-            self.add_message(self.current_user, timestamp, msg)
+            self.add_message(self.friend.username, timestamp, msg)
 
     def close(self):
         self.recv_isRunning.clear()
