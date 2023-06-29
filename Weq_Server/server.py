@@ -43,6 +43,7 @@ def do_command(msg:str,addr,client_socket):
               'deleteFriend':Login.delete_friend,
               'getFriends':Login.get_friends,
               'getAllusers':Login.getAllusers,
+              'getAddr':Login.getAddr,
               'close':Login.close
               }
     command = msg.split('\r\n\r\n')[0]
@@ -70,6 +71,14 @@ def do_command(msg:str,addr,client_socket):
             elif command == 'addFriend' or command == 'deleteFriend':
                 result = action[command](data['user'],data['friend'],addr)
 
+            elif command == 'getAddr':
+                result = action[command](data['user'],data['getUser'])
+                if result:
+                    result = {data['getUser']:str(result)}
+                    result = '1\r\n\r\n' + json.dumps(result)
+                    client_socket.send(result.encode('utf-8'))
+                return result
+                    
             elif command == 'getPubkey':
                 pubkey = action[command](data['user'],data['sendto'])
                 aeskey = Login.getSessionkey(data['user'])
@@ -95,6 +104,7 @@ def do_command(msg:str,addr,client_socket):
                 else:
                     result ='0\r\n\r\n'
                 client_socket.send(result.encode('utf-8'))
+                return result
 
             if result:
                 client_socket.send(b'1\r\n\r\n')
