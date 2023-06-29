@@ -4,6 +4,7 @@ from datetime import datetime
 from tkinter import filedialog
 from ..client import KeyDistribution,Client
 import threading
+import time
 
 class ChatGUI(tk.Toplevel):
     def __init__(self, parent, current_user, messages,friend,pri_key):
@@ -61,6 +62,7 @@ class ChatGUI(tk.Toplevel):
     def send_message(self):
         message = self.message_entry.get() # 获取用户在文本输入框中输入的消息内容
         if message:
+            message = 'msg\r\n' + message
             friend_ip = self.friend.ip
             self.client.send_msg(friend_ip,message)
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # 获取当前时间，并将其格式化为字符串表示
@@ -71,8 +73,18 @@ class ChatGUI(tk.Toplevel):
     def recv_msg(self,event:threading.Event):
         while event.is_set():
             msg = self.client.recv_msg()
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # 获取当前时间，并将其格式化为字符串表示
-            self.add_message(self.friend.username, timestamp, msg)
+            if msg.split('\r\n')[0] == 'msg':
+                msg = msg.split('\r\n')[1]
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # 获取当前时间，并将其格式化为字符串表示
+                self.add_message(self.friend.username, timestamp, msg)
+            elif msg.split('\r\n')[0] == 'img':
+                msg = msg.split('\r\n')[1]
+                path = './img/'+int(time.localtime())+'.jpg'
+                with open(path,'w',encoding='utf-8') as f:
+                    f.write(msg)
+                self.show_photo(path)
+                
+
 
     def close(self):
         self.recv_isRunning.clear()
@@ -85,8 +97,18 @@ class ChatGUI(tk.Toplevel):
             self.send_image(file_path)
 
     def send_image(self, file_path):
-        # 加载选定的图片
+
+        with open(file_path,'r',encoding='utf-8') as f:
+            context = f.read()
+        context = 'img\r\n' + context
+        friend_ip = self.friend.ip
+        self.client.send_msg(friend_ip,context)
+        self.show_photo(file_path)
+
+    def show_photo(self,file_path):
+                # 加载选定的图片
         image = Image.open(file_path)
+        
         # 调整图片大小
         resized_image = self.resize_image(image)
         # 将图片转换为PhotoImage对象

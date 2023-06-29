@@ -119,7 +119,8 @@ class FriendListGUI:
         def crypto_photo(old_img):
             msg = input_entry.get()
             if msg:
-                new_img = './img/Encrypto.jpg'
+                tail = old_img[old_img.find('.'):]
+                new_img = './img/Encrypto'+ tail
                 lsb = LSB(raw_img=old_img,new_img=new_img)
                 lsb.hide_data(msg)
                 return True
@@ -129,8 +130,9 @@ class FriendListGUI:
 
         # 加号符号
         def open_image():
-            file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.png;*.jpg;*.jpeg")])
-            return crypto_photo(file_path)
+            file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.png")])
+            if file_path:
+                return crypto_photo(file_path)
             # if file_path:
             #     image = Image.open(file_path)
             #     image.thumbnail((200, 200))  # 缩放图片大小为合适的尺寸
@@ -186,7 +188,8 @@ class FriendListGUI:
         
         # file_path = {'file_path':''}
         def add_image():
-            file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.png;*.jpg;*.jpeg")])
+            file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.png;")])
+           
             return file_path
             # if file_path:
             #     image = Image.open(file_path)
@@ -202,9 +205,12 @@ class FriendListGUI:
         def get_information():
             # 在这里编写获取信息的逻辑
             file_path = add_image()
-            lsb = LSB(new_img=file_path)
-            information =  lsb.get_data()
-            information_text.insert(tk.END, information + "\n")
+            if file_path:
+                lsb = LSB(new_img=file_path)
+                information =  lsb.get_data()
+                #TODO
+                # information_text.delete()
+                information_text.insert(tk.END, information + "\n")
 
 
         get_info_button = tk.Button(decrypt_window, text="获取信息", command=lambda: get_information())
