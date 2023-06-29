@@ -348,7 +348,7 @@ class FriendListGUI:
         self.friends =  []
         self.friend_listbox.delete(0,tk.END)
         friend_list = getFriends(self.current_user)
-        print(friend_list)
+        # print(friend_list)
         if friend_list:
             for item in friend_list:
                 friend = Friend(item[0], item[1], item[2])
