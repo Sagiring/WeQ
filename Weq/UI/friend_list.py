@@ -8,6 +8,7 @@ import socket
 import json
 from ..client import KeyDistribution
 import threading
+import time
 
 class Friend:
     def __init__(self, username, ip, port):
@@ -76,6 +77,15 @@ class FriendListGUI:
 
         key_threading = threading.Thread(target=self.key_server)
         key_threading.start()
+        refresh = threading.Thread(target=self.auto_fresh)
+        refresh.start()
+
+    def auto_fresh(self):
+        while 1:
+            time.sleep(5)
+            self.refresh_friends()
+            
+        
 
     def key_server(self):
         addrs = socket.getaddrinfo(socket.gethostname(), None)
