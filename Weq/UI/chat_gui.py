@@ -77,7 +77,7 @@ class ChatGUI(tk.Toplevel):
             msg = self.client.recv_msg()
             try:
                 msg = msg.decode()
-            except TypeError:
+            except UnicodeDecodeError:
                 msg = msg[len(b'img\r\n')+1:]
                 # image_data = base64.b64decode(msg)
                 path = './img/'+int(time.localtime())+'.jpg'
@@ -90,15 +90,7 @@ class ChatGUI(tk.Toplevel):
                 msg = msg.split('\r\n')[1]
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # 获取当前时间，并将其格式化为字符串表示
                 self.add_message(self.friend.username, timestamp, msg)
-            elif msg.split('\r\n')[0] == 'img':
-                msg = msg.split('\r\n')[1]
-                
-                # image_data = base64.b64decode(msg)
-                path = './img/'+int(time.localtime())+'.jpg'
-                with open(path,'wb') as f:
-                    f.write(msg)
-                self.show_photo(path)
-                
+
 
 
     def close(self):
