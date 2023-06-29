@@ -20,23 +20,29 @@ class Client:
     def __del__(self):
         self.server.close()
 
-    def send_msg(self, recv_ip, msg, recv_port=8888):
+    def send_msg(self, recv_ip, msg,isByte = False, recv_port=8888):
         key = self.session_key
         cipher = AES.new(key, AES.MODE_ECB)
-        msg = cipher.encrypt(pad(msg.encode('utf-8'), BLOCK_SIZE))
+        if isByte:
+            msg = cipher.encrypt(pad(msg, BLOCK_SIZE))
+        else:
+            msg = cipher.encrypt(pad(msg.encode('utf-8'), BLOCK_SIZE))
         conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         conn.connect((recv_ip, recv_port))
         conn.send(msg)
 
 
 
-    def recv_msg(self):
+    def recv_msg(self,isByte = True):
             try:
                 conn, addr = self.server.accept()
                 msg = conn.recv(8192)
                 key = self.session_key
                 cipher = AES.new(key, AES.MODE_ECB)
-                msg = unpad(cipher.decrypt(msg), BLOCK_SIZE).decode('utf-8', errors='ignore')
+                if isByte:
+                    msg = unpad(cipher.decrypt(msg), BLOCK_SIZE)
+                else:
+                    msg = unpad(cipher.decrypt(msg), BLOCK_SIZE).decode('utf-8', errors='ignore')
                 return msg
                 # if msg == 'quit':
                 #     print('对方退出聊天')

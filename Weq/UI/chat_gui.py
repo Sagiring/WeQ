@@ -75,6 +75,18 @@ class ChatGUI(tk.Toplevel):
     def recv_msg(self,event:threading.Event):
         while event.is_set():
             msg = self.client.recv_msg()
+            try:
+                msg = msg.decode()
+            except TypeError:
+                msg = msg[len(b'img\r\n')+1:]
+                
+                # image_data = base64.b64decode(msg)
+                path = './img/'+int(time.localtime())+'.jpg'
+                with open(path,'wb') as f:
+                    f.write(msg)
+                self.show_photo(path)
+                return 0
+
             if msg.split('\r\n')[0] == 'msg':
                 msg = msg.split('\r\n')[1]
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # 获取当前时间，并将其格式化为字符串表示
@@ -82,10 +94,10 @@ class ChatGUI(tk.Toplevel):
             elif msg.split('\r\n')[0] == 'img':
                 msg = msg.split('\r\n')[1]
                 
-                image_data = base64.b64decode(msg)
+                # image_data = base64.b64decode(msg)
                 path = './img/'+int(time.localtime())+'.jpg'
                 with open(path,'wb') as f:
-                    f.write(image_data)
+                    f.write(msg)
                 self.show_photo(path)
                 
 
@@ -105,16 +117,15 @@ class ChatGUI(tk.Toplevel):
         with open(file_path,'rb') as f:
             context = f.read()
         
-        image_str = base64.encodebytes(context).decode("utf-8")
-        context = 'img\r\n' + image_str
+        # image_str = base64.encodebytes(context).decode("utf-8")
+        context = b'img\r\n' + context
         friend_ip = self.friend.ip
-        self.client.send_msg(friend_ip,context)
+        self.client.send_msg(friend_ip,context,isByte=True)
         self.show_photo(file_path)
 
     def show_photo(self,file_path):
                 # 加载选定的图片
         image = Image.open(file_path)
-        
         # 调整图片大小
         resized_image = self.resize_image(image)
         # 将图片转换为PhotoImage对象
