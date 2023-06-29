@@ -42,7 +42,7 @@ class KeyDistribution:
             client.close()
         
 
-    def send_session_key_to_peer(self, friend_ip, port = 6000):
+    def send_session_key_to_peer(self, friend_ip, port = 6666):
         session_key = self.session_key
         pub_key = self.rsa_public_key
 
