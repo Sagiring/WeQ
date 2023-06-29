@@ -74,7 +74,7 @@ def do_command(msg:str,addr,client_socket):
             elif command == 'getAddr':
                 result = action[command](data['user'],data['getUser'])
                 if result:
-                    result = {data['getUser']:result}
+                    result = {data['getUser']:str(result)}
                     result = '1\r\n\r\n' + json.dumps(result)
                     client_socket.send(result.encode('utf-8'))
                 return result
