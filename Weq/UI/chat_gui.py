@@ -80,7 +80,7 @@ class ChatGUI(tk.Toplevel):
             except UnicodeDecodeError:
                 msg = msg[len(b'img\r\n')+1:]
                 # image_data = base64.b64decode(msg)
-
+                digits = 10
                 time_stamp = time.time()
                 digits = 10 ** (digits -10)
                 time_stamp = int(round(time_stamp*digits))
