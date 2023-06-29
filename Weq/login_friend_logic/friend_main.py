@@ -52,10 +52,9 @@ def friendstuple(response):
     parsed_data = json.loads(json_data)
 
     # 构建元组
-    result = tuple((user, *info.strip('()').split(',')) for user, info in parsed_data.items())
+    result = [(key,) + tuple(value.strip('()').replace('\'', '').split(', ')) for key, value in parsed_data.items()]
 
     return result
-
 
 def send_msg(msg:bytes):
     host = "10.21.237.247"  # 服务器 IP 地址
