@@ -1,21 +1,21 @@
 import tkinter as tk
 from tkinter import messagebox
-from main import FriendListGUI
-
+import Weq
+from Weq import FriendListGUI
 class InstantMessengerApp(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("欢迎使用WeQ!")
         self.geometry("300x200")
         
-        self.login_frame = LoginPage(self, self.show_registration_page, self.login)
+        self.login_frame = LoginPage(self, self.show_registration_page)
         self.registration_frame = RegistrationPage(self, self.show_login_page)
         
         self.show_login_page()
 
-    def show_friend_list_page(self, username):
+    def show_friend_list_page(self, username,pri_key):
         self.hide()
-        friend_list = FriendListGUI()
+        friend_list = FriendListGUI(pri_key)
         friend_list.current_user = username
         friend_list.run()
         self.destroy()
@@ -28,22 +28,6 @@ class InstantMessengerApp(tk.Tk):
         self.login_frame.pack_forget()
         self.registration_frame.pack()
         
-    def login(self, username, password):
-        # username = self.entry_username.get()
-        # password = self.entry_password.get()
-
-        # 在这里添加与后端交互的代码，实现登录逻辑
-        # 下面是样例
-        if username == "123456" and password == "123456":
-            messagebox.showinfo("登录", "登录成功")
-            self.show_friend_list_page(username)
-        else:
-            messagebox.showerror("登录", "用户名或密码错误")
-
-        # 在登录成功后跳转到另一个页面，这里使用一个简单的示例
-        #self.hide()
-        #success_frame = SuccessPage(self)
-        #success_frame.pack()
         
     def hide(self):
         self.withdraw()
@@ -53,7 +37,7 @@ class InstantMessengerApp(tk.Tk):
 
 
 class LoginPage(tk.Frame):
-    def __init__(self, master, show_registration_page, login_callback):
+    def __init__(self, master, show_registration_page, ):
         super().__init__(master)
         
         self.label_username = tk.Label(self, text="用户名:")
@@ -72,23 +56,21 @@ class LoginPage(tk.Frame):
         self.btn_login = tk.Button(self, text="登录", command=self.login)
         self.btn_login.pack()
         
-        self.login_callback = login_callback
+
 
     def login(self):
+
         username = self.entry_username.get()
         password = self.entry_password.get()
-        self.login_callback(username, password)
-    # def login(self):
-    #     username = self.entry_username.get()
-    #     password = self.entry_password.get()
+        result = Weq.login(username,password)
+        if result:
+            messagebox.showinfo("登录", "登录成功")
+            pri_key = Weq.addPubkey(username)
+            if pri_key:
+                self.master.show_friend_list_page(username,pri_key)  # 修改这一行
+        else:
+            messagebox.showinfo("登录", "用户名或密码错误")
 
-    #     # 在这里添加与后端交互的代码，实现登录逻辑
-
-    #     # 假设登录成功
-    #     messagebox.showinfo("登录", "登录成功")
-
-    #     # 在登录成功后跳转到好友列表界面并关闭当前页面
-    #     self.master.master.show_friend_list_page(username)  # 修改这一行
 
 class RegistrationPage(tk.Frame):
     def __init__(self, master, show_login_page):
@@ -122,13 +104,15 @@ class RegistrationPage(tk.Frame):
         username = self.entry_username.get()
         password = self.entry_password.get()
         
-        # 在这里添加与后端交互的代码，实现注册逻辑
-        
-        # 假设注册成功
-        messagebox.showinfo("Registration", "注册成功")
+        result = Weq.register(username,password,email)
+        if  result:
+            messagebox.showinfo("Registration", "注册成功")
+            self.show_login_page()
+        else:
+            messagebox.showinfo("Registration", "用户名已被使用或密码为数字+字母")
         
         # 返回到登录界面
-        self.show_login_page()
+        
 
 
 class SuccessPage(tk.Frame):

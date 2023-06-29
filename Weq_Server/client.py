@@ -1,22 +1,37 @@
 import socket
 import time
-client_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-client_socket.connect(('10.21.237.247',16666))
-
-client_socket.send(b'login\r\n\r\n{"user":"Ming","passwd":"123456"}')
+import json
+# client_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+# client_socket.connect(('10.21.184.19',6666))
+# print('-----')
+# client_socket.send(b'session\r\n\r\n{"user":"Ming","passwd":"123456"}')
 # print(client_socket.recv(5))
 
-# print(client_socket.recv(1024))
-client_socket.send(b'getFriends\r\n\r\n{"user":"Ming"}')
-# print(client_socket.recv(1024))
-client_socket.send(b'getAllusers\r\n\r\n{"user":"Ming"}')
 # # print(client_socket.recv(1024))
-# client_socket.send(b'deleteFriend\r\n\r\n{"user":"Ming","friend":"xiaoming"}')
-# print(client_socket.recv(5))
-# client_socket.send(b'close\r\n\r\n{"user":"Ming"}')
-# print(client_socket.recv(5))
-# client_socket.send(b'addPubkey\r\n\r\n{"user":"Ming","pubkey":"-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwbWjxcf18824JNK3xU/j\nDCcnIlsuUB5nMZYqhyEzp2cWrlzlwyxLiWvn8J3z7nS74ygvYWrnq1bHGjFyw5Ya\n8vSZc09Txgct3cuVjLzPHGySEKeqiVCj1F82AXAgUlGnW33MtMLmCyMIcbLMC5dK\n+LqKBBswgZ7O7EVvPo7ComU1bsSi0klnqDWEQUcoCzqoS9ucDQWoMsRtkJjGAYcK\n/MxwLrVuz+GiyR0ooNPNMJTW1a8siJ38i6C0uIk4/O17dufMz5L6/EsngSi3m90q\n5ssrsPFkp2msADctDbQqEpkFQAF9T3wl2hDFeXXW8gpO3BPfhwD/NNpv01mtBBo0\nsQIDAQAB\n-----END PUBLIC KEY-----"}')
-# print(client_socket.recv(5))
+# client_socket.send(b'getFriends\r\n\r\n{"user":"Ming"}')
+# # print(client_socket.recv(1024))
+# client_socket.send(b'getAllusers\r\n\r\n{"user":"Ming"}')
+# # # print(client_socket.recv(1024))
+# # client_socket.send(b'deleteFriend\r\n\r\n{"user":"Ming","friend":"xiaoming"}')
+# # print(client_socket.recv(5))
+# # client_socket.send(b'close\r\n\r\n{"user":"Ming"}')
+# # print(client_socket.recv(5))
+# # client_socket.send(b'addPubkey\r\n\r\n{"user":"Ming","pubkey":"-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwbWjxcf18824JNK3xU/j\nDCcnIlsuUB5nMZYqhyEzp2cWrlzlwyxLiWvn8J3z7nS74ygvYWrnq1bHGjFyw5Ya\n8vSZc09Txgct3cuVjLzPHGySEKeqiVCj1F82AXAgUlGnW33MtMLmCyMIcbLMC5dK\n+LqKBBswgZ7O7EVvPo7ComU1bsSi0klnqDWEQUcoCzqoS9ucDQWoMsRtkJjGAYcK\n/MxwLrVuz+GiyR0ooNPNMJTW1a8siJ38i6C0uIk4/O17dufMz5L6/EsngSi3m90q\n5ssrsPFkp2msADctDbQqEpkFQAF9T3wl2hDFeXXW8gpO3BPfhwD/NNpv01mtBBo0\nsQIDAQAB\n-----END PUBLIC KEY-----"}')
+# # print(client_socket.recv(5))
 
-client_socket.send(b'getPubkey\r\n\r\n{"user":"Ming","sendto":"Ming"}')
-# print(client_socket.recv(1024))
+# client_socket.send(b'getPubkey\r\n\r\n{"user":"Ming","sendto":"Ming"}')
+# # print(client_socket.recv(1024))
+
+addrs = socket.getaddrinfo(socket.gethostname(), None)
+for item in [addr[4][0] for addr in addrs]:
+    if item[:2] == '10':
+        ip = item
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.bind((ip, 6666))
+server.listen(5)
+print(ip, 6666)
+while 1:
+    conn, addr = server.accept()
+    conn.recv(4096).decode('utf-8')
+    # print(data)
+    
