@@ -80,7 +80,11 @@ class ChatGUI(tk.Toplevel):
             except UnicodeDecodeError:
                 msg = msg[len(b'img\r\n')+1:]
                 # image_data = base64.b64decode(msg)
-                path = './img/'+int(time.localtime())+'.jpg'
+
+                time_stamp = time.time()
+                digits = 10 ** (digits -10)
+                time_stamp = int(round(time_stamp*digits))
+                path = './img/'+str(time_stamp)+'.jpg'
                 with open(path,'wb') as f:
                     f.write(msg)
                 self.show_photo(path)
