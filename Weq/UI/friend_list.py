@@ -1,7 +1,9 @@
 import tkinter as tk
 from tkinter import messagebox
-from datetime import datetime
-from chat_gui2 import ChatGUI
+from ..login_friend_logic import *
+from .chat_gui3 import ChatGUI
+from PIL import Image, ImageTk
+from tkinter import filedialog
 
 class Friend:
     def __init__(self, username, ip, port):
@@ -19,7 +21,7 @@ class FriendListGUI:
 
         self.root = tk.Tk()
         self.root.title("好友列表")
-        self.root.geometry("400x300")
+        self.root.geometry("480x300")
 
         self.friend_frame = tk.Frame(self.root)
         self.friend_frame.pack(pady=10)
@@ -30,7 +32,7 @@ class FriendListGUI:
         self.friend_listbox = tk.Listbox(
             self.friend_frame,
             yscrollcommand=self.scrollbar.set,
-            width=50
+            width=70
         )
         self.friend_listbox.pack()
 
@@ -51,6 +53,122 @@ class FriendListGUI:
             command=self.open_remove_friend_dialog
         )
         self.remove_friend_button.pack(side=tk.RIGHT, padx=10, pady=10)
+
+        self.remove_friend_button = tk.Button(
+            self.root,
+            text="解密图片",
+            width=10,
+            command=self.Decrypt_images
+        )
+        self.remove_friend_button.pack(side=tk.RIGHT, padx=30, pady=10)
+
+        self.add_friend_button = tk.Button(
+            self.root,
+            text="加密图片",
+            width=10,
+            command=self.Encrypt_images
+        )
+        self.add_friend_button.pack(side=tk.LEFT, padx=30, pady=10)
+
+    #加密信息
+    def Encrypt_images(self):
+        # 创建弹出页面
+        encrypt_window = tk.Toplevel(self.root)
+        encrypt_window.title("加密图片")
+        encrypt_window.geometry("500x300")
+
+        # 输入框
+        input_entry = tk.Entry(encrypt_window)
+        input_entry.pack(side=tk.LEFT, padx=10, pady=10)
+
+        # 加号符号
+        def open_image():
+            file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.png;*.jpg;*.jpeg")])
+            if file_path:
+                image = Image.open(file_path)
+                image.thumbnail((200, 200))  # 缩放图片大小为合适的尺寸
+                image_tk = ImageTk.PhotoImage(image)
+                image_label.configure(image=image_tk)
+                image_label.image = image_tk  # 保存对图片对象的引用
+
+        plus_label = tk.Label(encrypt_window, text="+", cursor="hand2")
+        plus_label.pack(side=tk.LEFT, padx=10)
+        plus_label.bind("<Button-1>", lambda event: open_image())  # 绑定点击事件，调用open_image函数
+
+        # 图片框
+        image_frame = tk.Frame(encrypt_window)
+        image_frame.pack(side=tk.LEFT, padx=10)
+
+        image_label = tk.Label(image_frame)
+        image_label.pack()
+
+        # 等号符号
+        equal_label = tk.Label(encrypt_window, text="=",cursor="hand2")
+        equal_label.pack(side=tk.LEFT, padx=10)
+        plus_label.bind("<Button-1>", lambda event: open_image())#这里的event还没添加
+
+    # 解密信息
+    def Decrypt_images(self):
+        decrypt_window = tk.Toplevel(self.root)
+        decrypt_window.title("解密图片")
+        decrypt_window.geometry("500x300")
+        
+        # 创建滚动条
+        scrollbar = tk.Scrollbar(decrypt_window)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        # 图片框
+        image_frame = tk.Frame(decrypt_window)
+        image_frame.pack(side=tk.TOP, padx=10, pady=10)
+        
+        image_label = tk.Label(image_frame)
+        image_label.pack()
+
+        # 添加图片按钮
+        def add_image():
+            file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.png;*.jpg;*.jpeg")])
+            if file_path:
+                image = Image.open(file_path)
+                image.thumbnail((200, 200))  # 缩放图片大小为合适的尺寸
+                image_tk = ImageTk.PhotoImage(image)
+                image_label.configure(image=image_tk)
+                image_label.image = image_tk  # 保存对图片对象的引用
+        
+        add_image_button = tk.Button(decrypt_window, text="添加图片", command=add_image)
+        add_image_button.pack(side=tk.LEFT, padx=10, pady=10)
+
+        def get_information():
+            # 在这里编写获取信息的逻辑
+            information = "这是获取到的信息"  # 替换为实际的获取信息的逻辑
+            information_text.insert(tk.END, information + "\n")
+
+
+        get_info_button = tk.Button(decrypt_window, text="获取信息", command=get_information)
+        get_info_button.pack(side=tk.LEFT, padx=10, pady=10)
+
+        # 文本框用于输出信息
+        information_text = tk.Text(decrypt_window, height=5, width=30)
+        information_text.pack(side=tk.LEFT, padx=10, pady=10)
+
+        # 将滚动条与文本框关联
+        scrollbar.config(command=information_text.yview)
+        information_text.config(yscrollcommand=scrollbar.set)
+        # # 创建滚动条
+        # scrollbar = tk.Scrollbar(decrypt_window)
+        # scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        # 创建全局滚动条
+        main_scrollbar = tk.Scrollbar(decrypt_window)
+        main_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        # 将滚动条与文本框关联
+        scrollbar.config(command=information_text.yview)
+        information_text.config(yscrollcommand=scrollbar.set)
+        # 创建一个框架，用于容纳所有部件
+        main_frame = tk.Frame(decrypt_window)
+        main_frame.pack(padx=10, pady=10)
+        # 将主框架与滚动条关联
+        main_scrollbar.config(command=main_frame.yview)
+        main_frame.config(yscrollcommand=main_scrollbar.set)
 
     def open_add_friend_dialog(self):
         # 创建添加好友对话框
@@ -87,14 +205,14 @@ class FriendListGUI:
             messagebox.showerror("错误", "好友已存在")
         else:
             # 检查好友是否存在
-            if self.check_friend_exist(username):
-                friend = Friend(username, "192.168.0.1", 1234)  # 假设固定IP和端口号
-                self.friends.append(friend)
-                self.refresh_friends()
-                messagebox.showinfo("添加好友", "好友请求已发送")
-                dialog.destroy()
-            else:
-                messagebox.showerror("错误", "用户名不存在")
+                result = addFriend(username)
+                if result:
+                    messagebox.showinfo("好友", "好友已添加")
+                    dialog.destroy()
+                else:
+                    messagebox.showinfo("好友","添加失败")
+     
+       
 
     def open_remove_friend_dialog(self):
         # 创建删除好友对话框
@@ -131,10 +249,13 @@ class FriendListGUI:
         else:
             # 检查好友是否存在
             if self.check_friend_exist(username):
-                self.remove_friend_by_username(username)
-                self.refresh_friends()
-                messagebox.showinfo("删除好友", "成功删除好友")
-                dialog.destroy()
+                result = deleteFriend(username)
+                if result:
+                    messagebox.showinfo("好友", "好友已删除")
+                    dialog.destroy()
+                else:
+                    messagebox.showinfo("好友","删除失败")
+                        
             else:
                 messagebox.showerror("错误", "好友不存在")
 
@@ -151,6 +272,18 @@ class FriendListGUI:
 
     # 刷新好友列表。
     def refresh_friends(self):
+        #从服务器获取好友列表ip端口号与在线状态 
+
+        friend_list = getFriends(self.current_user)
+        print(friend_list)
+
+        # friend = Friend(username, "192.168.0.1", 1234)  # 假设固定IP和端口号
+        # self.friends.append(friend)
+ 
+        
+
+
+
         # 清空好友列表
         self.friend_listbox.delete(0, tk.END)
 
@@ -173,7 +306,7 @@ class FriendListGUI:
             latest_message = friend.latest_message[:10] + "..." if len(friend.latest_message) > 10 else friend.latest_message
             # 根据在线状态设置文本颜色
             text_color = "green" if friend.online else "black"
-            friend_info = f"{friend.username} [{status}] {latest_message} ({friend.unread_messages})"
+            friend_info = f"{friend.username}  IP: {friend.ip}  Port: {friend.port} [{status}] {latest_message} ({friend.unread_messages})"
             self.friend_listbox.insert(tk.END, friend_info)
             self.friend_listbox.itemconfig(tk.END, fg=text_color)
             
@@ -240,6 +373,7 @@ if __name__ == "__main__":
     #     Friend("Charlie", "192.168.0.3", 9012),
     #     Friend("David", "192.168.0.4", 3456)
     # ]
+
     # # 模拟一些在线状态和最新消息的更新
     # friend_list_gui.set_online_status("Bob", True)
     # friend_list_gui.set_online_status("Charlie", True)
