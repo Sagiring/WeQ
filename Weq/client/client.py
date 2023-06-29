@@ -22,26 +22,28 @@ class Client:
         self.server.close()
 
     def send_msg(self, recv_ip, msg, recv_port=8888):
-        key = self.session_key
-        cipher = AES.new(key, AES.MODE_ECB)
-        msg = cipher.encrypt(pad(msg.encode('utf-8'), BLOCK_SIZE))
-        print(base64.b64encode(msg))
-        print(base64.b64encode(key))
-        print('-------')
+        # key = self.session_key
+        # cipher = AES.new(key, AES.MODE_ECB)
+        # msg = cipher.encrypt(pad(msg.encode('utf-8'), BLOCK_SIZE))
+        # print(base64.b64encode(msg))
+        # print(base64.b64encode(key))
+        # print('-------')
         conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         conn.connect((recv_ip, recv_port))
-        conn.send(base64.b64encode(msg))
+        # conn.send(base64.b64encode(msg))
+        conn.send(msg.encode())
 
 
     def recv_msg(self):
             try:
                 conn, addr = self.server.accept()
-                msg = base64.b64decode(conn.recv(4096))
-                key = self.session_key
-                print(base64.b64encode(msg))
-                print(base64.b64encode(key))
-                cipher = AES.new(key, AES.MODE_ECB)
-                msg = unpad(cipher.decrypt(msg), BLOCK_SIZE).decode('utf-8', errors='ignore')
+                # msg = base64.b64decode(conn.recv(4096))
+                msg = conn.recv(8192).decode()
+                # key = self.session_key
+                # print(base64.b64encode(msg))
+                # print(base64.b64encode(key))
+                # cipher = AES.new(key, AES.MODE_ECB)
+                # msg = unpad(cipher.decrypt(msg), BLOCK_SIZE).decode('utf-8', errors='ignore')
                 return msg
                 # if msg == 'quit':
                 #     print('对方退出聊天')
