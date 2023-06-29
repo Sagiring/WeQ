@@ -5,7 +5,7 @@ from tkinter import filedialog
 from ..client import KeyDistribution,Client
 import threading
 import time
-import base64
+
 
 class ChatGUI(tk.Toplevel):
     def __init__(self, parent, current_user, messages,friend,pri_key):
@@ -84,7 +84,7 @@ class ChatGUI(tk.Toplevel):
                 time_stamp = time.time()
                 digits = 10 ** (digits -10)
                 time_stamp = int(round(time_stamp*digits))
-                path = './img/'+str(time_stamp)+'.jpg'
+                path = './img/'+str(time_stamp)+'.png'
                 with open(path,'wb') as f:
                     f.write(msg)
                 time.sleep(1)
