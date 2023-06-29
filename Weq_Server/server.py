@@ -43,7 +43,6 @@ def do_command(msg:str,addr,client_socket):
               'deleteFriend':Login.delete_friend,
               'getFriends':Login.get_friends,
               'getAllusers':Login.getAllusers,
-              'getAddr':Login.getAddr,
               'close':Login.close
               }
     command = msg.split('\r\n\r\n')[0]
@@ -92,7 +91,18 @@ def do_command(msg:str,addr,client_socket):
                 client_socket.close()
                 return aeskey
             
-            elif command == 'getFriends' or command == 'getAllusers':
+
+            elif command == 'getFriends':
+                users = action[command](data['user'])
+                if users != False:
+                    result = '1\r\n\r\n' + json.dumps(users)
+                else:
+                    result ='0\r\n\r\n'
+                client_socket.send(result.encode('utf-8'))
+                return result
+
+
+            elif  command == 'getAllusers':
                 users = action[command](data['user'])
                 if users != False:
                     users_list = []
