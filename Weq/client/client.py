@@ -26,6 +26,8 @@ class Client:
         cipher = AES.new(key, AES.MODE_ECB)
         msg = cipher.encrypt(msg.encode())
         print(msg)
+        print(key)
+        print('---------')
         conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         conn.connect((recv_ip, recv_port))
         conn.send(msg)
@@ -36,10 +38,11 @@ class Client:
             try:
                 conn, addr = self.server.accept()
                 msg = conn.recv(8192)
-                print(msg)
                 key = self.session_key
+                print(msg)
+                print(key)
                 cipher = AES.new(key, AES.MODE_ECB)
-                msg = cipher.decrypt(msg).decode()
+                msg = cipher.decrypt(msg).decode(errors='ignore')
                 return msg
                 # if msg == 'quit':
                 #     print('对方退出聊天')
