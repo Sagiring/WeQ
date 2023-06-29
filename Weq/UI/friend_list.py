@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from ..login_friend_logic import *
-from .chat_gui3 import ChatGUI
+from .chat_gui import ChatGUI
 from PIL import Image, ImageTk
 from tkinter import filedialog
 
@@ -205,12 +205,13 @@ class FriendListGUI:
             messagebox.showerror("错误", "好友已存在")
         else:
             # 检查好友是否存在
-                result = addFriend(username)
+                result = addFriend(self.current_user,username)
                 if result:
                     messagebox.showinfo("好友", "好友已添加")
                     dialog.destroy()
                 else:
                     messagebox.showinfo("好友","添加失败")
+        self.refresh_friends()
      
        
 
@@ -249,7 +250,7 @@ class FriendListGUI:
         else:
             # 检查好友是否存在
             if self.check_friend_exist(username):
-                result = deleteFriend(username)
+                result = deleteFriend(self.current_user,username)
                 if result:
                     messagebox.showinfo("好友", "好友已删除")
                     dialog.destroy()
@@ -258,6 +259,7 @@ class FriendListGUI:
                         
             else:
                 messagebox.showerror("错误", "好友不存在")
+        self.refresh_friends()
 
     # 检查好友是否存在于好友列表中。
     def check_friend_exist(self, username):
@@ -273,19 +275,14 @@ class FriendListGUI:
     # 刷新好友列表。
     def refresh_friends(self):
         #从服务器获取好友列表ip端口号与在线状态 
-
+        self.friends =  []
+        self.friend_listbox.delete(0,tk.END)
         friend_list = getFriends(self.current_user)
-        print(friend_list)
-
-        # friend = Friend(username, "192.168.0.1", 1234)  # 假设固定IP和端口号
-        # self.friends.append(friend)
- 
-        
-
-
-
-        # 清空好友列表
-        self.friend_listbox.delete(0, tk.END)
+        for item in friend_list:
+            friend = Friend(item[0], item[1], item[2])
+            if item[1] != '0':
+                friend.online = True
+            self.friends.append(friend)
 
         # 按照在线状态和最近聊天将好友排序
         sorted_friends = sorted(

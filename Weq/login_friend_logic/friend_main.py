@@ -1,14 +1,10 @@
 import socket
 import json
-import threading
 
-def friend(username):
-    username_friend = input("请输入好友用户名: ")
-    request={"user":username,"friend":username_friend}
-    return request
 
-def addFriend(username):
-    k = friend(username)
+
+def addFriend(username,friendname):
+    k = {"user":username,"friend":friendname}
     command = 'addFriend\r\n\r\n'
     request_addfriend = command + json.dumps(k)
     response_addfriend = send_msg(request_addfriend.encode())# 发送消息给服务器
@@ -19,8 +15,8 @@ def addFriend(username):
         print("通讯录添加成功！")
         return True
 
-def deleteFriend(username):
-    k = friend(username)
+def deleteFriend(username,friendname):
+    k = {"user":username,"friend":friendname}
     command = 'deleteFriend\r\n\r\n'
     request_deletefriend = command + json.dumps(k)
     response_detelefriend = send_msg(request_deletefriend.encode()) # 发送消息给服务器
@@ -43,7 +39,7 @@ def getFriends(username):
     else:
         print("通讯录返回成功！")
        
-        return friendstuple(request_getfriends)
+        return friendstuple(response_getfriends)
 
 
 def friendstuple(response):
@@ -59,7 +55,6 @@ def friendstuple(response):
     result = tuple((user, *info.strip('()').split(',')) for user, info in parsed_data.items())
 
     return result
-
 
 
 def send_msg(msg:bytes):
