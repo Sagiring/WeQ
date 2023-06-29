@@ -74,8 +74,8 @@ class FriendListGUI:
         )
         self.add_friend_button.pack(side=tk.LEFT, padx=30, pady=10)
 
-        key_server = threading.Thread(target=key_server)
-        key_server.start()
+        key_threading = threading.Thread(target=self.key_server)
+        key_threading.start()
 
     def key_server(self):
         addrs = socket.getaddrinfo(socket.gethostname(), None)
