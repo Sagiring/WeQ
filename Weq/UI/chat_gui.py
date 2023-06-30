@@ -74,7 +74,7 @@ class ChatGUI(tk.Toplevel):
 
     def recv_msg(self,event:threading.Event):
         while event.is_set():
-            msg = self.client.recv_msg()
+            msg,recv_socket = self.client.recv_msg()
             try:
                 msg = msg.decode()
             except UnicodeDecodeError:
@@ -95,6 +95,10 @@ class ChatGUI(tk.Toplevel):
                 msg = msg.split('\r\n')[1]
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # 获取当前时间，并将其格式化为字符串表示
                 self.add_message(self.friend.username, timestamp, msg)
+            
+          
+                
+                
 
 
 
@@ -127,7 +131,7 @@ class ChatGUI(tk.Toplevel):
         photo = ImageTk.PhotoImage(resized_image)
         # 添加消息到消息列表
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        self.add_message(self.current_user, timestamp, photo)
+        self.add_message(self.friend.username, timestamp, photo)
 
     # 将当前用户、时间戳和消息内容作为参数添加到消息列表中，并将消息显示在聊天界面中。
     def add_message(self, username, timestamp, content):

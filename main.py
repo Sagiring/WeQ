@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 import Weq
 from Weq import FriendListGUI
+import os
 class InstantMessengerApp(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -124,5 +125,8 @@ class SuccessPage(tk.Frame):
 
 
 if __name__ == "__main__":
+    img_path = './img/'
+    if not os.path.exists(img_path):
+        os.mkdir(img_path)
     app = InstantMessengerApp()
     app.mainloop()
