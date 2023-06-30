@@ -49,25 +49,25 @@ class LoginPage(tk.Frame):
         
        
         label_title=ttk.Label(self,text='WeQ',bootstyle=DANGER,font=('Times New Roman',20))
-        label_title.grid(row=1,column=3,padx=5,pady=10,sticky='nsew')
+        label_title.grid(row=0,column=3,padx=5,pady=10)
 
         label_username = ttk.Label(self, text="用户名:",font=('楷体',13), bootstyle=PRIMARY)
-        label_username.grid(row=2, column=2, padx=5, pady=20, sticky=tk.E)
+        label_username.grid(row=1, column=2, padx=5, pady=20,sticky='nsew')
 
         self.entry_username = ttk.Entry(self, bootstyle=SECONDARY)
-        self.entry_username.grid(row=2, column=3, padx=5, pady=10)
+        self.entry_username.grid(row=1, column=3, padx=4, pady=10)
 
         label_password = ttk.Label(self, text="密码:",font=('楷体',13), bootstyle=PRIMARY)
-        label_password.grid(row=3, column=2, padx=5, pady=10, sticky=tk.E)
+        label_password.grid(row=2, column=2, padx=5, pady=10)
 
         self.entry_password = ttk.Entry(self, show="*", bootstyle=SECONDARY)
-        self.entry_password.grid(row=3, column=3, padx=5, pady=10)
+        self.entry_password.grid(row=2, column=3, padx=5, pady=10)
 
         btn_login = ttk.Button(self, text="登录",command=self.login, style=("WARNING.TButton"))
-        btn_login.grid(row=4, column=3, columnspan=2, padx=5, pady=10)
+        btn_login.grid(row=2, column=4, padx=5, pady=5)
 
         btn_register = ttk.Button(self, text="没有帐户，点击注册", command=show_registration_page, style=("PRIMARY.TButton", "outline-toolbutton"))
-        btn_register.grid(row=5, column=3, columnspan=2, padx=5, pady=10)
+        btn_register.grid(row=4, column=3, padx=5, pady=10)
 
         # self.login_callback = login_callback
         
