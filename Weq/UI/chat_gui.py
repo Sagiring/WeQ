@@ -1,7 +1,7 @@
 from PIL import Image, ImageTk
 import tkinter as tk
 from datetime import datetime
-from tkinter import filedialog, messagebox
+from tkinter import filedialog, messagebox,scrolledtext
 from ..client import KeyDistribution,Client
 import threading
 import time
@@ -12,10 +12,11 @@ class ChatGUI(tk.Toplevel):
     def __init__(self, parent, current_user, messages,friend,pri_key):
         super().__init__(parent)
         self.title("聊天界面")
-        self.geometry("500x400")
+        self.geometry("500x700")
         self.friend = friend
         self.pri_key = pri_key
-        
+        self.isFirst = True
+        self.isSecond = True
         self.current_user = current_user
         self.messages = messages
 
@@ -33,9 +34,10 @@ class ChatGUI(tk.Toplevel):
         recv_isRunning = threading.Event()
         recv_isRunning.set()
         self.recv_isRunning = recv_isRunning
-        recv_threading = threading.Thread(target=self.recv_msg,args=(recv_isRunning,))
-        recv_threading.start()
+        self.recv_threading = threading.Thread(target=self.recv_msg,args=(recv_isRunning,))
+        self.recv_threading.start()
 
+   
 
         self.create_widgets()  # 创建聊天界面的各个部件。
         self.load_messages()  # 加载显示聊天消息。
@@ -43,7 +45,8 @@ class ChatGUI(tk.Toplevel):
 
 
     def create_widgets(self):
-        self.message_box = tk.Text(self) # 文本框显示消息
+            
+        self.message_box = scrolledtext.ScrolledText(self) # 文本框显示消息
         self.message_box.pack(fill=tk.BOTH, expand=True)
 
         self.send_frame = tk.Frame(self) # 框架容纳发送消息
@@ -58,24 +61,51 @@ class ChatGUI(tk.Toplevel):
         self.send_image_button = tk.Button(self.send_frame, text="发送图片", command=self.select_image)
         self.send_image_button.pack(side=tk.RIGHT, padx=5)
 
- 
+        
 
     # 处理发送消息的逻辑
     def send_message(self):
+        if self.isFirst:
+            message = 'correct1\r\n'
+            friendip = self.friend.ip
+            # self.recv_isRunning.clear()
+            # self.recv_threading.join()
+            self.client.send_msg(friendip, message)
+            # if msg == 'correct2':
+            #     self.recv_isRunning.set()
+            #     self.recv_threading.start()
+            self.isFirst = False
+          
+        # elif self.isSecond:
+        #     message = 'correct2\r\n'
+        #     friendip = self.friend.ip
+        #     # self.recv_isRunning.clear()
+        #     # self.recv_threading.join()
+        #     self.client.send_msg(friendip, message)
+        #     # if msg == 'correct2':
+        #     #     self.recv_isRunning.set()
+        #     #     self.recv_threading.start()
+        #     self.isSecond = False
+            
         message = self.message_entry.get() # 获取用户在文本输入框中输入的消息内容
         if message:
-            message = 'msg\r\n' + message
-            friend_ip = self.friend.ip
-            self.client.send_msg(friend_ip,message)
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # 获取当前时间，并将其格式化为字符串表示
-            message = message.split('\r\n')[1]
-            self.add_message(self.current_user, timestamp, message)
-            self.message_entry.delete(0, tk.END) # 清空文本输入框
+                message = 'msg\r\n' + message
+                friend_ip = self.friend.ip
+                self.client.send_msg(friend_ip,message)
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # 获取当前时间，并将其格式化为字符串表示
+                message = message.split('\r\n')[1]
+                self.add_message(self.current_user, timestamp, message)
+                self.message_entry.delete(0, tk.END) # 清空文本输入框
+
+
 
 
     def recv_msg(self,event:threading.Event):
         while event.is_set():
-            msg,send_socket,servre_socket = self.client.recv_msg()
+            try:
+                msg,send_socket,servre_socket = self.client.recv_msg()
+            except TypeError:
+                return 0
             try:
                 msg = msg.decode()
             except UnicodeDecodeError:
@@ -91,6 +121,7 @@ class ChatGUI(tk.Toplevel):
                 time.sleep(1)
                 self.show_photo(path)
                 return 0
+            
 
             if msg.split('\r\n')[0] == 'msg':
                 msg = msg.split('\r\n')[1]
@@ -127,6 +158,23 @@ class ChatGUI(tk.Toplevel):
                     pass
                 send_socket.close()
                 servre_socket.close()
+            elif msg.split('\r\n')[0] == 'correct1':
+                print('接受correct1')
+                self.isFirst = False
+                message = 'correct2\r\n'
+                friendip = self.friend.ip
+                self.client.send_msg(friendip, message)
+                # self.client.send_msg(friendip, message)
+            elif msg.split('\r\n')[0] == 'correct2':
+                print('接受correct2')
+                # self.isSecond= False
+                message = 'correct3\r\n'
+                friendip = self.friend.ip
+                self.client.send_msg(friendip, message)
+                # self.client.send_msg(friendip, message)
+                
+
+
                 
 
     def close(self):

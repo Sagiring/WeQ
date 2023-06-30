@@ -12,6 +12,8 @@ class Client:
         self.session_key = session_key
         self.server_port = port
         self.send_port = port
+        self.isFisrt = True
+        self.isSecond = True
         addrs = socket.getaddrinfo(socket.gethostname(), None)
         for item in [addr[4][0] for addr in addrs]:
             if item[:2] == '10':
@@ -33,31 +35,81 @@ class Client:
         self.server.close()
 
     def send_msg(self, recv_ip, msg,isByte = False):
-        key = self.session_key
-        # self.send_port = 8888
-        cipher = AES.new(key, AES.MODE_ECB)
-        if isByte:
-            msg = cipher.encrypt(pad(msg, BLOCK_SIZE))
-        else:
-            msg = cipher.encrypt(pad(msg.encode('utf-8'), BLOCK_SIZE))
-        conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+       
         port = self.send_port
-        while 1:
-            try:
+        if msg != 'correct1\r\n' and msg != 'correct2\r\n':
+           
+            conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            key = self.session_key
+            # self.send_port = 8888
+            cipher = AES.new(key, AES.MODE_ECB)
+            if isByte:
+                msg = cipher.encrypt(pad(msg, BLOCK_SIZE))
+            else:
+                msg = cipher.encrypt(pad(msg.encode('utf-8'), BLOCK_SIZE))
+           
+            while 1:
+                # try:
+                    conn.connect((recv_ip,port))
+                    self.send_port = port
+                    break
+                # except ConnectionRefusedError:
+                #     time.sleep(0.1)
+                #     port += 1
+            # print((str(len(msg))).encode())
+            # print(f'send_port:{self.send_port}')
+            conn.send((str(len(msg))).encode()+ b'\r\n\r\n' + msg)
+        else:
+            conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            socket.setdefaulttimeout(2)
+            if msg == 'correct1\r\n' :
+                while self.isFisrt:
+                    try:
+                        conn.connect((recv_ip,self.send_port))
+                        conn.settimeout(2)
+                        conn.send((str(len(msg))).encode()+ b'\r\n\r\n' +msg.encode())
+                        time.sleep(3)
+                    except ConnectionRefusedError:
+                        time.sleep(0.1)
+                        self.send_port += 1
+                    except TimeoutError:
+                        time.sleep(0.1)
+                        self.send_port += 1
+                    except OSError:
+                        conn.close()
+                        self.send_port += 1
+                        if self.send_port > 20000:
+                            self.send_port = 8888
+
+            elif msg == 'correct3\r\n':
+                while self.isSecond:
+                    try:
+                        conn.connect((recv_ip,self.send_port))
+                        conn.settimeout(2)
+                        conn.send((str(len(msg))).encode()+ b'\r\n\r\n' +msg.encode())
+                        time.sleep(3)
+                    except ConnectionRefusedError:
+                        time.sleep(0.1)
+                        self.send_port += 1
+                    except TimeoutError:
+                        time.sleep(0.1)
+                        self.send_port += 1
+                    except OSError:
+                        conn.close()
+                        self.send_port += 1
+                        if self.send_port > 20000:
+                            self.send_port = 8888
+            else:
                 conn.connect((recv_ip,port))
-                self.send_port = port
-                break
-            except ConnectionRefusedError:
-                time.sleep(0.1)
-                port += 1
-        # print((str(len(msg))).encode())
-        # print(f'send_port:{self.send_port}')
-        conn.send((str(len(msg))).encode()+ b'\r\n\r\n' + msg)
+                conn.send((str(len(msg))).encode()+ b'\r\n\r\n' + msg.encode())
+                
+                    
         
 
 
 
     def recv_msg(self,isByte = True):
+            
             try:
                 conn, addr = self.server.accept()
                 data = conn.recv(1024)
@@ -72,23 +124,36 @@ class Client:
                     msg += data
                     Len += len(data)
                     
-
-                # print(len(msg))
-                key = self.session_key
-                cipher = AES.new(key, AES.MODE_ECB)
-                if isByte:
-                    msg = unpad(cipher.decrypt(msg), BLOCK_SIZE)
+                if msg != b'correct1\r\n' and msg != b'correct2\r\n':
+                    # print(len(msg))
+                    key = self.session_key
+                    cipher = AES.new(key, AES.MODE_ECB)
+                    if isByte:
+                        msg = unpad(cipher.decrypt(msg), BLOCK_SIZE)
+                    else:
+                        msg = unpad(cipher.decrypt(msg), BLOCK_SIZE).decode('utf-8', errors='ignore')
+                    return msg,conn,self.server
                 else:
-                    msg = unpad(cipher.decrypt(msg), BLOCK_SIZE).decode('utf-8', errors='ignore')
-                return msg,conn,self.server
-                # if msg == 'quit':
-                #     print('对方退出聊天')
-                #     conn.close()
-                #     break
-                # else:
-                #     print(f'{addr} say:', msg)
-                #     conn.close()
+                    # msg = conn.recv(len(b'correct2\r\n'))
+                    if msg == b'correct2\r\n':
+                        print('已收到Correct2')
+                        socket.setdefaulttimeout(None)
+                        conn.settimeout(None)
+                        self.isFisrt = False
+                    elif msg == b'correct3\r\n':
+                        print('已收到Correct3')
+                        socket.setdefaulttimeout(None)
+                        conn.settimeout(None)
+                        self.isSecond = False
+   
+                    return msg,conn,self.server
+            except TimeoutError:
+                pass
             except Exception as e:
                 print(e)
                 traceback.print_exc()
 
+    def correct(self, ip):
+        message = 'correct\r\n'
+        frendip = ip
+        self.send_msg(frendip, message)

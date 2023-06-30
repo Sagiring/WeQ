@@ -10,7 +10,7 @@ class InstantMessengerApp(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("欢迎使用WeQ!")
-        self.geometry("400x300")
+        self.geometry("500x300")
         style = Style()
         style = Style(theme='lumen')
         self = style.master
@@ -169,7 +169,6 @@ class SuccessPage(tk.Frame):
         
         self.label_success = tk.Label(self, text="登录成功！")
         self.label_success.pack()
-
 
 if __name__ == "__main__":
     app = InstantMessengerApp()
