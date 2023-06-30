@@ -48,8 +48,8 @@ class LoginPage(tk.Frame):
         super().__init__(master)
         
        
-        label_title=ttk.Label(self,text='Welcome',bootstyle=DANGER,font=('Times New Roman',20))
-        label_title.grid(row=1,column=3,padx=5,pady=10)
+        label_title=ttk.Label(self,text='WeQ',bootstyle=DANGER,font=('Times New Roman',20))
+        label_title.grid(row=1,column=3,padx=5,pady=10,sticky='nsew')
 
         label_username = ttk.Label(self, text="用户名:",font=('楷体',13), bootstyle=PRIMARY)
         label_username.grid(row=2, column=2, padx=5, pady=20, sticky=tk.E)
