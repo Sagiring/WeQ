@@ -112,13 +112,19 @@ class ChatGUI(tk.Toplevel):
                 message = 'ACK2\r\n'
                 friendip = self.friend.ip
                 self.client.send_msg(friendip, message)
-                servre_socket.shutdown(socket.SHUT_RDWR)
+                try:
+                    servre_socket.shutdown(socket.SHUT_RDWR)
+                except OSError:
+                    pass
                 send_socket.close()
                 servre_socket.close()
             elif msg.split('\r\n')[0] == 'ACK2':
                 self.recv_isRunning.clear()
                 print('接收ACK2')
-                servre_socket.shutdown(socket.SHUT_RDWR)
+                try:
+                    servre_socket.shutdown(socket.SHUT_RDWR)
+                except OSError:
+                    pass
                 send_socket.close()
                 servre_socket.close()
                 

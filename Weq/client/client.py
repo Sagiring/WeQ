@@ -27,7 +27,7 @@ class Client:
                 time.sleep(0.1)
                 port += 1
         self.server.listen(5)
-        print(f'recv_port:{self.server_port}')
+        # print(f'recv_port:{self.server_port}')
 
     def __del__(self):
         self.server.close()
@@ -51,7 +51,7 @@ class Client:
                 time.sleep(0.1)
                 port += 1
         # print((str(len(msg))).encode())
-        print(f'send_port:{self.send_port}')
+        # print(f'send_port:{self.send_port}')
         conn.send((str(len(msg))).encode()+ b'\r\n\r\n' + msg)
         
 
