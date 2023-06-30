@@ -107,9 +107,12 @@ class ChatGUI(tk.Toplevel):
             elif msg.split('\r\n')[0] == 'close1':
                 self.close1()
             elif msg.split('\r\n')[0] == 'ACK1':
+                recv_socket.close()
                 message = 'ACK2\r\n'
                 friendip = self.friend.ip
                 self.client.send_msg(friendip, message)
+            elif msg.split('\r\n')[0] == 'ACK2':
+                recv_socket.close()
 
     def close(self):
         self.recv_isRunning.clear()
@@ -123,7 +126,7 @@ class ChatGUI(tk.Toplevel):
         message = 'ACK1\r\n'
         friendip = self.friend.ip
         self.client.send_msg(friendip, message)
-        messagebox.showinfo('对方终止了聊天')
+        messagebox.showinfo('提示', '对方终止了聊天')
         self.destroy()
 
     # 发送图片
