@@ -36,7 +36,6 @@ class InstantMessengerApp(tk.Tk):
     def show(self):
         self.deiconify()
 
-
 class LoginPage(tk.Frame):
     def __init__(self, master, show_registration_page, ):
         super().__init__(master)
@@ -113,8 +112,6 @@ class RegistrationPage(tk.Frame):
             messagebox.showinfo("Registration", "用户名已被使用或密码为数字+字母")
         
         # 返回到登录界面
-        
-
 
 class SuccessPage(tk.Frame):
     def __init__(self, master):

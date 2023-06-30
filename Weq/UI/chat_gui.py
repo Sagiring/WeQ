@@ -1,10 +1,11 @@
 from PIL import Image, ImageTk
 import tkinter as tk
 from datetime import datetime
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 from ..client import KeyDistribution,Client
 import threading
 import time
+
 
 
 class ChatGUI(tk.Toplevel):
@@ -95,15 +96,34 @@ class ChatGUI(tk.Toplevel):
                 msg = msg.split('\r\n')[1]
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # 获取当前时间，并将其格式化为字符串表示
                 self.add_message(self.friend.username, timestamp, msg)
-            
-          
-                
-                
-
-
+            elif msg.split('\r\n')[0] == 'close':
+                self.close()
+                message = '\r\n'
+                friendip = self.friend.ip
+                self.client.send_msg(friendip, message)
+                # msg = msg.split('\r\n')[1]
+                # timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                # self.add_message(self.friend.username, timestamp, msg)
+            elif msg.split('\r\n')[0] == 'close1':
+                self.close1()
+            elif msg.split('\r\n')[0] == 'ACK1':
+                message = 'ACK2\r\n'
+                friendip = self.friend.ip
+                self.client.send_msg(friendip, message)
 
     def close(self):
         self.recv_isRunning.clear()
+        message = 'close1\r\n'
+        friendip = self.friend.ip
+        self.client.send_msg(friendip, message)
+        self.destroy()
+
+    def close1(self):
+        self.recv_isRunning.clear()
+        message = 'ACK1\r\n'
+        friendip = self.friend.ip
+        self.client.send_msg(friendip, message)
+        messagebox.showinfo('对方终止了聊天')
         self.destroy()
 
     # 发送图片
