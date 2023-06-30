@@ -72,7 +72,7 @@ class Client:
                             self.send_port = port
                             socket.setdefaulttimeout(None)
                             conn.settimeout(None)
-                            break
+                            return 'correct2'
                     except ConnectionRefusedError:
                         time.sleep(0.1)
                         port += 1
@@ -89,6 +89,7 @@ class Client:
 
 
     def recv_msg(self,isByte = True):
+            
             try:
                 conn, addr = self.server.accept()
                 data = conn.recv(1024)

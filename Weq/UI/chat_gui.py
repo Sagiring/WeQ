@@ -33,8 +33,8 @@ class ChatGUI(tk.Toplevel):
         recv_isRunning = threading.Event()
         recv_isRunning.set()
         self.recv_isRunning = recv_isRunning
-        recv_threading = threading.Thread(target=self.recv_msg,args=(recv_isRunning,))
-        recv_threading.start()
+        self.recv_threading = threading.Thread(target=self.recv_msg,args=(recv_isRunning,))
+        self.recv_threading.start()
 
    
 
@@ -67,8 +67,14 @@ class ChatGUI(tk.Toplevel):
         if self.isFirst:
             message = 'correct1\r\n'
             friendip = self.friend.ip
-            self.client.send_msg(friendip, message)
+            self.recv_isRunning.clear()
+            self.recv_threading.join()
+            msg = self.client.send_msg(friendip, message)
+            if msg == 'correct2':
+                self.recv_isRunning.set()
+                self.recv_threading.start()
             self.isFirst = False
+ 
 
         message = self.message_entry.get() # 获取用户在文本输入框中输入的消息内容
         if message:
@@ -141,11 +147,13 @@ class ChatGUI(tk.Toplevel):
                 servre_socket.close()
             elif msg.split('\r\n')[0] == 'correct1':
                 print('接受correct1')
+                self.isFirst = False
                 message = 'correct2\r\n'
                 friendip = self.friend.ip
                 self.client.send_msg(friendip, message)
             elif msg.split('\r\n')[0] == 'correct2':
                 print('握手成功')
+                
 
 
                 
