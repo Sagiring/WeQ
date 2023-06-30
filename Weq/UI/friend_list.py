@@ -412,36 +412,33 @@ class FriendListGUI:
 
         self.refresh_friends()
 
-    # 打开聊天界面。
-    def open_chat_window(self):
-        selected_friend_index_tuple = self.friend_listbox.curselection()
+    def open_chat_window(self, event):
+        selected_friend_index_tuple = event.widget.curselection()
         if selected_friend_index_tuple:
             selected_friend_index = selected_friend_index_tuple[0]
             selected_friend = self.friends[selected_friend_index]
+            
+            if selected_friend.online:
+                messages = []  # 存储消息的列表
+                chat_window = ChatGUI(self.root, self.current_user, messages)
+                chat_window.title(f"与 {selected_friend.username} 的聊天")
+                chat_window.geometry("500x400")
 
-            messages = []  # 存储消息的列表
-            chat_window = ChatGUI(self.root, self.current_user, messages,selected_friend,self.pri_key)
-            chat_window.title(f"与 {selected_friend.username} 的聊天")
-            chat_window.geometry("500x400")
+                # 设置好友的最新消息和未读消息数
+                selected_friend.latest_message = ""
+                selected_friend.unread_messages = 0
+                self.refresh_friends()
 
-            # 设置好友的最新消息和未读消息数
-            selected_friend.latest_message = ""
-            selected_friend.unread_messages = 0
-            self.refresh_friends()
-
-            chat_window.mainloop()
+                chat_window.mainloop()
+            else:
+                messagebox.showinfo("好友未在线", "好友未在线")
+                self.friend_listbox.selection_clear(0, tk.END)  # 取消选中状态
         else:
             messagebox.showerror("错误", "请先选择一个好友")
 
-    # # 运行好友列表应用程序。
-    # def run(self, current_user):
-    #     self.current_user = current_user
-    #     self.refresh_friends()
-    #     self.friend_listbox.bind("<Double-Button-1>", lambda event: self.open_chat_window())
-    #     self.root.mainloop()
     def run(self):
         self.refresh_friends()
-        self.friend_listbox.bind("<Double-Button-1>", lambda event: self.open_chat_window())
+        self.friend_listbox.bind("<Double-Button-1>",self.open_chat_window)
         self.root.mainloop()
 
     # def run(self):
