@@ -2,13 +2,18 @@ import tkinter as tk
 from tkinter import messagebox
 from ..login_friend_logic import *
 from .chat_gui import ChatGUI
-from PIL import Image, ImageTk
+# from PIL import Image, ImageTk
 from tkinter import filedialog
+import socket
+import json
+from ..client import KeyDistribution,LSB
+import threading
+import time
 
 class Friend:
     def __init__(self, username, ip, port):
         self.username = username
-        self.ip = ip
+        self.ip = ip[1:-1]
         self.port = port
         self.online = False
         self.latest_message = ""
@@ -19,7 +24,7 @@ class FriendListGUI:
         self.friends = []  # 存储好友信息的列表
         self.current_user = None  # 当前用户的用户名
 
-        self.root = tk.Tk()
+        self.root = tk.Toplevel()
         self.root.title("好友列表")
         self.root.geometry("480x300")
         self.pri_key = pri_key
@@ -70,6 +75,51 @@ class FriendListGUI:
         )
         self.add_friend_button.pack(side=tk.LEFT, padx=30, pady=10)
 
+        
+        self.root.protocol('WM_DELETE_WINDOW', self.close)
+        isRunning = threading.Event()
+        isRunning.set()
+        self.isRunning = isRunning
+        key_threading = threading.Thread(target=self.key_server)
+        key_threading.start()
+        refresh = threading.Thread(target=self.auto_fresh)
+        refresh.start()
+
+    def close(self):
+        result = close(self.current_user)
+        self.isRunning.clear()
+        self.root.destroy()
+        
+
+    def auto_fresh(self):
+        while self.isRunning.is_set():
+            time.sleep(3)
+            self.refresh_friends()
+            
+        
+
+    def key_server(self):
+        addrs = socket.getaddrinfo(socket.gethostname(), None)
+        for item in [addr[4][0] for addr in addrs]:
+            if item[:2] == '10':
+                ip = item
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.bind((ip, 6666))
+        server.listen(5)
+        while self.isRunning.is_set():
+            conn, addr = server.accept()
+            data = json.loads(conn.recv(4096).decode('utf-8'))
+            print('已收到密钥')
+            if data['action'] == 'chat':
+                print('存储密钥')
+                self.session_key = KeyDistribution.get_session_key_from_peer(self.pri_key,data,addr)
+        for item in self.friends:
+            if item.ip == addr[0]:
+                item.unread_messages += 1
+                item.latest_message = "请求连接"
+                print('更新请求连接')
+        self.refresh_friends()
+
     #加密信息
     def Encrypt_images(self):
         # 创建弹出页面
@@ -81,31 +131,57 @@ class FriendListGUI:
         input_entry = tk.Entry(encrypt_window)
         input_entry.pack(side=tk.LEFT, padx=10, pady=10)
 
+
+
+        def crypto_photo(old_img):
+            msg = input_entry.get()
+            if msg:
+                tail = old_img[old_img.find('.'):]
+                new_img = './img/Encrypto'+ tail
+                lsb = LSB(raw_img=old_img,new_img=new_img)
+                lsb.hide_data(msg)
+                return True
+
+            else:
+                return False
+
         # 加号符号
         def open_image():
-            file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.png;*.jpg;*.jpeg")])
+            file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.png")])
             if file_path:
-                image = Image.open(file_path)
-                image.thumbnail((200, 200))  # 缩放图片大小为合适的尺寸
-                image_tk = ImageTk.PhotoImage(image)
-                image_label.configure(image=image_tk)
-                image_label.image = image_tk  # 保存对图片对象的引用
-
-        plus_label = tk.Label(encrypt_window, text="+", cursor="hand2")
+                return crypto_photo(file_path)
+            # if file_path:
+            #     image = Image.open(file_path)
+            #     image.thumbnail((200, 200))  # 缩放图片大小为合适的尺寸
+            #     image_tk = ImageTk.PhotoImage(image)
+            #     image_label.configure(image=image_tk)
+            #     image_label.image = image_tk  # 保存对图片对象的引用
+            #     filepath['file_path'] = file_path
+                
+           
+        
+        plus_label = tk.Label(encrypt_window, text="加密图片", cursor="hand2")
         plus_label.pack(side=tk.LEFT, padx=10)
         plus_label.bind("<Button-1>", lambda event: open_image())  # 绑定点击事件，调用open_image函数
 
+     
         # 图片框
-        image_frame = tk.Frame(encrypt_window)
-        image_frame.pack(side=tk.LEFT, padx=10)
+        # image_frame = tk.Frame(encrypt_window)
+        # image_frame.pack(side=tk.LEFT, padx=10)
 
-        image_label = tk.Label(image_frame)
-        image_label.pack()
+        # image_label = tk.Label(image_frame)
+        # image_label.pack()
 
-        # 等号符号
-        equal_label = tk.Label(encrypt_window, text="=",cursor="hand2")
-        equal_label.pack(side=tk.LEFT, padx=10)
-        plus_label.bind("<Button-1>", lambda event: open_image())#这里的event还没添加
+
+    
+
+            
+        # # 等号符号
+        # equal_label = tk.Label(encrypt_window, text="加密图片",cursor="hand2")
+        # equal_label.pack(side=tk.LEFT, padx=10)
+        # plus_label.bind("<Button-2>", lambda event: crypto_photo(filepath["file_path"]))#这里的event还没添加
+
+ 
 
     # 解密信息
     def Decrypt_images(self):
@@ -125,50 +201,61 @@ class FriendListGUI:
         image_label.pack()
 
         # 添加图片按钮
-        def add_image():
-            file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.png;*.jpg;*.jpeg")])
-            if file_path:
-                image = Image.open(file_path)
-                image.thumbnail((200, 200))  # 缩放图片大小为合适的尺寸
-                image_tk = ImageTk.PhotoImage(image)
-                image_label.configure(image=image_tk)
-                image_label.image = image_tk  # 保存对图片对象的引用
+
         
-        add_image_button = tk.Button(decrypt_window, text="添加图片", command=add_image)
-        add_image_button.pack(side=tk.LEFT, padx=10, pady=10)
+        # file_path = {'file_path':''}
+        def add_image():
+            file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.png;")])
+           
+            return file_path
+            # if file_path:
+            #     image = Image.open(file_path)
+            #     image.thumbnail((200, 200))  # 缩放图片大小为合适的尺寸
+            #     image_tk = ImageTk.PhotoImage(image)
+            #     image_label.configure(image=image_tk)
+            #     image_label.image = image_tk  # 保存对图片对象的引用
+                # file_path['file_path'] = file_path
+        
+        # add_image_button = tk.Button(decrypt_window, text="添加图片", command=add_image)
+        # add_image_button.pack(side=tk.LEFT, padx=10, pady=10)
 
         def get_information():
             # 在这里编写获取信息的逻辑
-            information = "这是获取到的信息"  # 替换为实际的获取信息的逻辑
-            information_text.insert(tk.END, information + "\n")
+            file_path = add_image()
+            if file_path:
+                lsb = LSB(new_img=file_path)
+                information =  lsb.get_data()
+                #TODO
+                # information_text.delete()
+                information_text.insert(tk.END, information + "\n")
 
 
-        get_info_button = tk.Button(decrypt_window, text="获取信息", command=get_information)
+        get_info_button = tk.Button(decrypt_window, text="获取信息", command=lambda: get_information())
         get_info_button.pack(side=tk.LEFT, padx=10, pady=10)
 
         # 文本框用于输出信息
         information_text = tk.Text(decrypt_window, height=5, width=30)
         information_text.pack(side=tk.LEFT, padx=10, pady=10)
 
-        # 将滚动条与文本框关联
-        scrollbar.config(command=information_text.yview)
-        information_text.config(yscrollcommand=scrollbar.set)
-        # # 创建滚动条
-        # scrollbar = tk.Scrollbar(decrypt_window)
-        # scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        # # 将滚动条与文本框关联
+        # scrollbar.config(command=information_text.yview)
+        # information_text.config(yscrollcommand=scrollbar.set)
+        # # # 创建滚动条
+        # # scrollbar = tk.Scrollbar(decrypt_window)
+        # # scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-        # 创建全局滚动条
-        main_scrollbar = tk.Scrollbar(decrypt_window)
-        main_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        # 将滚动条与文本框关联
-        scrollbar.config(command=information_text.yview)
-        information_text.config(yscrollcommand=scrollbar.set)
-        # 创建一个框架，用于容纳所有部件
-        main_frame = tk.Frame(decrypt_window)
-        main_frame.pack(padx=10, pady=10)
-        # 将主框架与滚动条关联
-        main_scrollbar.config(command=main_frame.yview)
-        main_frame.config(yscrollcommand=main_scrollbar.set)
+        # # 创建全局滚动条
+        # main_scrollbar = tk.Scrollbar(decrypt_window)
+        # main_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        # # 将滚动条与文本框关联
+        # scrollbar.config(command=information_text.yview)
+        # information_text.config(yscrollcommand=scrollbar.set)
+        # # 创建一个框架，用于容纳所有部件
+        # main_frame = tk.Frame(decrypt_window)
+        # main_frame.pack(padx=10, pady=10)
+        # # 将主框架与滚动条关联
+        # main_scrollbar.config(command=main_frame.yview)
+        # main_frame.config(yscrollcommand=main_scrollbar.set)
 
     def open_add_friend_dialog(self):
         # 创建添加好友对话框
@@ -278,11 +365,15 @@ class FriendListGUI:
         self.friends =  []
         self.friend_listbox.delete(0,tk.END)
         friend_list = getFriends(self.current_user)
-        for item in friend_list:
-            friend = Friend(item[0], item[1], item[2])
-            if item[1] != '0':
-                friend.online = True
-            self.friends.append(friend)
+        # print(friend_list)
+        if friend_list:
+            for item in friend_list:
+                friend = Friend(item[0], item[1], item[2])
+                if item[1] != '0':
+                    friend.online = True
+                self.friends.append(friend)
+        else:
+            return False
 
         # 按照在线状态和最近聊天将好友排序
         sorted_friends = sorted(
@@ -327,36 +418,33 @@ class FriendListGUI:
 
         self.refresh_friends()
 
-    # 打开聊天界面。
-    def open_chat_window(self):
-        selected_friend_index_tuple = self.friend_listbox.curselection()
+    def open_chat_window(self, event):
+        selected_friend_index_tuple = event.widget.curselection()
         if selected_friend_index_tuple:
             selected_friend_index = selected_friend_index_tuple[0]
             selected_friend = self.friends[selected_friend_index]
+            
+            if selected_friend.online:
+                messages = []  # 存储消息的列表
+                chat_window = ChatGUI(self.root, self.current_user, messages,selected_friend,self.pri_key)
+                chat_window.title(f"与 {selected_friend.username} 的聊天")
+                chat_window.geometry("500x400")
 
-            messages = []  # 存储消息的列表
-            chat_window = ChatGUI(self.root, self.current_user, messages,selected_friend,self.pri_key)
-            chat_window.title(f"与 {selected_friend.username} 的聊天")
-            chat_window.geometry("500x400")
+                # 设置好友的最新消息和未读消息数
+                selected_friend.latest_message = ""
+                selected_friend.unread_messages = 0
+                self.refresh_friends()
 
-            # 设置好友的最新消息和未读消息数
-            selected_friend.latest_message = ""
-            selected_friend.unread_messages = 0
-            self.refresh_friends()
-
-            chat_window.mainloop()
+                chat_window.mainloop()
+            else:
+                messagebox.showinfo("好友未在线", "好友未在线")
+                self.friend_listbox.selection_clear(0, tk.END)  # 取消选中状态
         else:
             messagebox.showerror("错误", "请先选择一个好友")
 
-    # # 运行好友列表应用程序。
-    # def run(self, current_user):
-    #     self.current_user = current_user
-    #     self.refresh_friends()
-    #     self.friend_listbox.bind("<Double-Button-1>", lambda event: self.open_chat_window())
-    #     self.root.mainloop()
     def run(self):
         self.refresh_friends()
-        self.friend_listbox.bind("<Double-Button-1>", lambda event: self.open_chat_window())
+        self.friend_listbox.bind("<Double-Button-1>",self.open_chat_window)
         self.root.mainloop()
 
     # def run(self):

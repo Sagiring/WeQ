@@ -33,11 +33,12 @@ def getFriends(username):
     request_getfriends = command + json.dumps(k)
      # 发送消息给服务器
     response_getfriends = send_msg(request_getfriends.encode()) # 接收服务器的响应
+    # print(response_getfriends)
     if response_getfriends[0] == '0':
-        print("通讯录返回失败！")
+        # print("通讯录返回失败！")
         return False
     else:
-        print("通讯录返回成功！")
+        # print("通讯录返回成功！")
        
         return friendstuple(response_getfriends)
 

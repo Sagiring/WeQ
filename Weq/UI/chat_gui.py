@@ -1,8 +1,12 @@
 from PIL import Image, ImageTk
 import tkinter as tk
 from datetime import datetime
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 from ..client import KeyDistribution,Client
+import threading
+import time
+
+
 
 class ChatGUI(tk.Toplevel):
     def __init__(self, parent, current_user, messages,friend,pri_key):
@@ -17,14 +21,26 @@ class ChatGUI(tk.Toplevel):
 
         self.max_image_width = 400  # 设置图片的最大宽度
         self.max_image_height = 300  # 设置图片的最大高度
+        Session = KeyDistribution.get_session_key(friend_ip = friend.ip)
+        if Session:
+            self.Session_key = Session
+        else:
+            Distributer = KeyDistribution(pri_key)
+            Distributer.get_session_key_from_server(current_user,friend.username)
+            self.Session_key = Distributer.send_session_key_to_peer(friend.ip)
 
-        keyDis =  KeyDistribution(pri_key)
-        keyDis.get_session_key_from_server(current_user,friend.username)
-        keyDis.send_session_key_to_peer(friend.ip)
+        self.client = Client(self.Session_key)
+        recv_isRunning = threading.Event()
+        recv_isRunning.set()
+        self.recv_isRunning = recv_isRunning
+        recv_threading = threading.Thread(target=self.recv_msg,args=(recv_isRunning,))
+        recv_threading.start()
 
 
         self.create_widgets()  # 创建聊天界面的各个部件。
         self.load_messages()  # 加载显示聊天消息。
+        self.protocol('WM_DELETE_WINDOW', self.close)
+
 
     def create_widgets(self):
         self.message_box = tk.Text(self) # 文本框显示消息
@@ -42,20 +58,78 @@ class ChatGUI(tk.Toplevel):
         self.send_image_button = tk.Button(self.send_frame, text="发送图片", command=self.select_image)
         self.send_image_button.pack(side=tk.RIGHT, padx=5)
 
+ 
+
     # 处理发送消息的逻辑
     def send_message(self):
         message = self.message_entry.get() # 获取用户在文本输入框中输入的消息内容
-        friend_ip = self.friend.ip
-        client = Client()
-        client.send_msg(friend_ip,message)
-
         if message:
+            message = 'msg\r\n' + message
+            friend_ip = self.friend.ip
+            self.client.send_msg(friend_ip,message)
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # 获取当前时间，并将其格式化为字符串表示
-            # self.add_message(self.current_user, timestamp, message)
+            message = message.split('\r\n')[1]
+            self.add_message(self.current_user, timestamp, message)
             self.message_entry.delete(0, tk.END) # 清空文本输入框
 
 
+    def recv_msg(self,event:threading.Event):
+        while event.is_set():
+            msg,recv_socket,servre_socket = self.client.recv_msg()
+            try:
+                msg = msg.decode()
+            except UnicodeDecodeError:
+                msg = msg[len(b'img\r\n'):]
+                # image_data = base64.b64decode(msg)
+                digits = 10
+                time_stamp = time.time()
+                digits = 10 ** (digits -10)
+                time_stamp = int(round(time_stamp*digits))
+                path = './img/'+str(time_stamp)+'.png'
+                with open(path,'wb') as f:
+                    f.write(msg)
+                time.sleep(1)
+                self.show_photo(path)
+                return 0
 
+            if msg.split('\r\n')[0] == 'msg':
+                msg = msg.split('\r\n')[1]
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # 获取当前时间，并将其格式化为字符串表示
+                self.add_message(self.friend.username, timestamp, msg)
+            elif msg.split('\r\n')[0] == 'close':
+                self.close()
+                message = '\r\n'
+                friendip = self.friend.ip
+                self.client.send_msg(friendip, message)
+                # msg = msg.split('\r\n')[1]
+                # timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                # self.add_message(self.friend.username, timestamp, msg)
+            elif msg.split('\r\n')[0] == 'close1':
+                self.close1()
+            elif msg.split('\r\n')[0] == 'ACK1':
+                recv_socket.close()
+                servre_socket.close()
+                message = 'ACK2\r\n'
+                friendip = self.friend.ip
+                self.client.send_msg(friendip, message)
+            elif msg.split('\r\n')[0] == 'ACK2':
+                recv_socket.close()
+                servre_socket.close()
+
+    def close(self):
+        self.recv_isRunning.clear()
+        message = 'close1\r\n'
+        friendip = self.friend.ip
+        self.client.send_msg(friendip, message)
+        self.destroy()
+
+    def close1(self):
+        self.recv_isRunning.clear()
+        message = 'ACK1\r\n'
+        friendip = self.friend.ip
+        self.client.send_msg(friendip, message)
+        messagebox.showinfo('提示', '对方终止了聊天')
+        self.destroy()
 
     # 发送图片
     def select_image(self):
@@ -64,6 +138,16 @@ class ChatGUI(tk.Toplevel):
             self.send_image(file_path)
 
     def send_image(self, file_path):
+        with open(file_path,'rb') as f:
+            context = f.read()
+        
+        # image_str = base64.encodebytes(context).decode("utf-8")
+        context = b'img\r\n' + context
+        friend_ip = self.friend.ip
+        self.client.send_msg(friend_ip,context,isByte=True)
+        self.show_photo(file_path)
+
+    def show_photo(self,file_path):
         # 加载选定的图片
         image = Image.open(file_path)
         # 调整图片大小
@@ -72,7 +156,7 @@ class ChatGUI(tk.Toplevel):
         photo = ImageTk.PhotoImage(resized_image)
         # 添加消息到消息列表
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        self.add_message(self.current_user, timestamp, photo)
+        self.add_message(self.friend.username, timestamp, photo)
 
     # 将当前用户、时间戳和消息内容作为参数添加到消息列表中，并将消息显示在聊天界面中。
     def add_message(self, username, timestamp, content):

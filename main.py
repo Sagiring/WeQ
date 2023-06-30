@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 import Weq
 from Weq import FriendListGUI
+import os
 class InstantMessengerApp(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -34,7 +35,6 @@ class InstantMessengerApp(tk.Tk):
         
     def show(self):
         self.deiconify()
-
 
 class LoginPage(tk.Frame):
     def __init__(self, master, show_registration_page, ):
@@ -112,8 +112,6 @@ class RegistrationPage(tk.Frame):
             messagebox.showinfo("Registration", "用户名已被使用或密码为数字+字母")
         
         # 返回到登录界面
-        
-
 
 class SuccessPage(tk.Frame):
     def __init__(self, master):
@@ -124,5 +122,8 @@ class SuccessPage(tk.Frame):
 
 
 if __name__ == "__main__":
+    img_path = './img/'
+    if not os.path.exists(img_path):
+        os.mkdir(img_path)
     app = InstantMessengerApp()
     app.mainloop()
