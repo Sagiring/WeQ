@@ -52,14 +52,14 @@ class Client:
                     Len += len(data)
                     
 
-                print(len(msg))
+                # print(len(msg))
                 key = self.session_key
                 cipher = AES.new(key, AES.MODE_ECB)
                 if isByte:
                     msg = unpad(cipher.decrypt(msg), BLOCK_SIZE)
                 else:
                     msg = unpad(cipher.decrypt(msg), BLOCK_SIZE).decode('utf-8', errors='ignore')
-                return msg
+                return msg,conn
                 # if msg == 'quit':
                 #     print('对方退出聊天')
                 #     conn.close()
