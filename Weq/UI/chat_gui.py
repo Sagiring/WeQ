@@ -5,7 +5,7 @@ from tkinter import filedialog, messagebox
 from ..client import KeyDistribution,Client
 import threading
 import time
-
+import socket
 
 
 class ChatGUI(tk.Toplevel):
@@ -75,7 +75,7 @@ class ChatGUI(tk.Toplevel):
 
     def recv_msg(self,event:threading.Event):
         while event.is_set():
-            msg,recv_socket,servre_socket = self.client.recv_msg()
+            msg,send_socket,servre_socket = self.client.recv_msg()
             try:
                 msg = msg.decode()
             except UnicodeDecodeError:
@@ -107,19 +107,19 @@ class ChatGUI(tk.Toplevel):
             elif msg.split('\r\n')[0] == 'close1':
                 self.close1()
             elif msg.split('\r\n')[0] == 'ACK1':
-                recv_socket.shutdown()
-                recv_socket.close()
-                servre_socket.shutdown()
+                servre_socket.shutdown(socket.SHUT_RDWR)
                 servre_socket.close()
                 print('接收ACK1')
                 message = 'ACK2\r\n'
                 friendip = self.friend.ip
                 self.client.send_msg(friendip, message)
+                send_socket.shutdown(socket.SHUT_RDWR)
+                send_socket.close()
             elif msg.split('\r\n')[0] == 'ACK2':
                 print('接收ACK2')
-                recv_socket.shutdown()
-                recv_socket.close()
-                servre_socket.shutdown()
+                send_socket.shutdown(socket.SHUT_RDWR)
+                send_socket.close()
+                servre_socket.shutdown(socket.SHUT_RDWR)
                 servre_socket.close()
 
     def close(self):
