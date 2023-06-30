@@ -13,6 +13,7 @@ class Client:
         self.server_port = port
         self.send_port = port
         self.isFisrt = True
+        self.isSecond = True
         addrs = socket.getaddrinfo(socket.gethostname(), None)
         for item in [addr[4][0] for addr in addrs]:
             if item[:2] == '10':
@@ -61,8 +62,27 @@ class Client:
         else:
             conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             socket.setdefaulttimeout(2)
-            if msg == 'correct1\r\n':
+            if msg == 'correct1\r\n' :
                 while self.isFisrt:
+                    try:
+                        conn.connect((recv_ip,self.send_port))
+                        conn.settimeout(2)
+                        conn.send((str(len(msg))).encode()+ b'\r\n\r\n' +msg.encode())
+                        time.sleep(3)
+                    except ConnectionRefusedError:
+                        time.sleep(0.1)
+                        self.send_port += 1
+                    except TimeoutError:
+                        time.sleep(0.1)
+                        self.send_port += 1
+                    except OSError:
+                        conn.close()
+                        self.send_port += 1
+                        if self.send_port > 20000:
+                            self.send_port = 8888
+
+            if msg == 'correct3\r\n':
+                while self.isSecond:
                     try:
                         conn.connect((recv_ip,self.send_port))
                         conn.settimeout(2)
@@ -120,6 +140,11 @@ class Client:
                         socket.setdefaulttimeout(None)
                         conn.settimeout(None)
                         self.isFisrt = False
+                    elif msg == b'correct3\r\n':
+                        print('已收到Correct3')
+                        socket.setdefaulttimeout(None)
+                        conn.settimeout(None)
+                        self.isSecond = False
    
                     return msg,conn,self.server
             except TimeoutError:

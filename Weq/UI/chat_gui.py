@@ -151,9 +151,14 @@ class ChatGUI(tk.Toplevel):
                 message = 'correct2\r\n'
                 friendip = self.friend.ip
                 self.client.send_msg(friendip, message)
-                self.client.send_msg(friendip, message)
+                # self.client.send_msg(friendip, message)
             elif msg.split('\r\n')[0] == 'correct2':
-                print('握手成功')
+                print('接受correct2')
+                self.isFirst = False
+                message = 'correct3\r\n'
+                friendip = self.friend.ip
+                self.client.send_msg(friendip, message)
+                # self.client.send_msg(friendip, message)
                 
 
 
