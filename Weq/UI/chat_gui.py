@@ -75,7 +75,7 @@ class ChatGUI(tk.Toplevel):
 
     def recv_msg(self,event:threading.Event):
         while event.is_set():
-            msg,recv_socket = self.client.recv_msg()
+            msg,recv_socket,servre_socket = self.client.recv_msg()
             try:
                 msg = msg.decode()
             except UnicodeDecodeError:
@@ -108,11 +108,13 @@ class ChatGUI(tk.Toplevel):
                 self.close1()
             elif msg.split('\r\n')[0] == 'ACK1':
                 recv_socket.close()
+                servre_socket.close()
                 message = 'ACK2\r\n'
                 friendip = self.friend.ip
                 self.client.send_msg(friendip, message)
             elif msg.split('\r\n')[0] == 'ACK2':
                 recv_socket.close()
+                servre_socket.close()
 
     def close(self):
         self.recv_isRunning.clear()

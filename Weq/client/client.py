@@ -59,7 +59,7 @@ class Client:
                     msg = unpad(cipher.decrypt(msg), BLOCK_SIZE)
                 else:
                     msg = unpad(cipher.decrypt(msg), BLOCK_SIZE).decode('utf-8', errors='ignore')
-                return msg,conn
+                return msg,conn,self.server
                 # if msg == 'quit':
                 #     print('对方退出聊天')
                 #     conn.close()
