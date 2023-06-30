@@ -30,7 +30,7 @@ class Client:
             msg = cipher.encrypt(pad(msg.encode('utf-8'), BLOCK_SIZE))
         conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         conn.connect((recv_ip, recv_port))
-        print((str(len(msg))).encode())
+        # print((str(len(msg))).encode())
         conn.send((str(len(msg))).encode()+ b'\r\n\r\n' + msg)
         
 
