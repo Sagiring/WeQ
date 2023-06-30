@@ -107,7 +107,7 @@ class ChatGUI(tk.Toplevel):
             elif msg.split('\r\n')[0] == 'close1':
                 self.close1()
             elif msg.split('\r\n')[0] == 'ACK1':
-                servre_socket.shutdown(socket.SHUT_RDWR)
+                servre_socket.shutdown(socket.SHUT_RD)
                 servre_socket.close()
                 print('接收ACK1')
                 message = 'ACK2\r\n'
@@ -119,7 +119,7 @@ class ChatGUI(tk.Toplevel):
                 print('接收ACK2')
                 send_socket.shutdown(socket.SHUT_RDWR)
                 send_socket.close()
-                servre_socket.shutdown(socket.SHUT_RDWR)
+                servre_socket.shutdown(socket.SHUT_RD)
                 servre_socket.close()
 
     def close(self):
