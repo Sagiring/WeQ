@@ -1,7 +1,7 @@
 from PIL import Image, ImageTk
 import tkinter as tk
 from datetime import datetime
-from tkinter import filedialog, messagebox
+from tkinter import filedialog, messagebox,scrolledtext
 from ..client import KeyDistribution,Client
 import threading
 import time
@@ -12,7 +12,7 @@ class ChatGUI(tk.Toplevel):
     def __init__(self, parent, current_user, messages,friend,pri_key):
         super().__init__(parent)
         self.title("聊天界面")
-        self.geometry("500x400")
+        self.geometry("600x1200")
         self.friend = friend
         self.pri_key = pri_key
         
@@ -43,7 +43,8 @@ class ChatGUI(tk.Toplevel):
 
 
     def create_widgets(self):
-        self.message_box = tk.Text(self) # 文本框显示消息
+            
+        self.message_box = scrolledtext.ScrolledText(self) # 文本框显示消息
         self.message_box.pack(fill=tk.BOTH, expand=True)
 
         self.send_frame = tk.Frame(self) # 框架容纳发送消息
@@ -58,7 +59,7 @@ class ChatGUI(tk.Toplevel):
         self.send_image_button = tk.Button(self.send_frame, text="发送图片", command=self.select_image)
         self.send_image_button.pack(side=tk.RIGHT, padx=5)
 
- 
+        
 
     # 处理发送消息的逻辑
     def send_message(self):

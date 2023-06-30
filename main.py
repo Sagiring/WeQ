@@ -10,7 +10,7 @@ class InstantMessengerApp(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("欢迎使用WeQ!")
-        self.geometry("400x300")
+        self.geometry("500x300")
         style = Style()
         style = Style(theme='lumen')
         self = style.master
