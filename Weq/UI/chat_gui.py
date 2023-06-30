@@ -79,7 +79,10 @@ class ChatGUI(tk.Toplevel):
 
     def recv_msg(self,event:threading.Event):
         while event.is_set():
-            msg,send_socket,servre_socket = self.client.recv_msg()
+            try:
+                msg,send_socket,servre_socket = self.client.recv_msg()
+            except TypeError:
+                return 0
             try:
                 msg = msg.decode()
             except UnicodeDecodeError:
@@ -95,6 +98,7 @@ class ChatGUI(tk.Toplevel):
                 time.sleep(1)
                 self.show_photo(path)
                 return 0
+            
 
             if msg.split('\r\n')[0] == 'msg':
                 msg = msg.split('\r\n')[1]

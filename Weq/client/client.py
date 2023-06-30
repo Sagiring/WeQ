@@ -33,10 +33,11 @@ class Client:
         self.server.close()
 
     def send_msg(self, recv_ip, msg,isByte = False):
-        socket.setdefaulttimeout(2)
-        conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+       
         port = self.send_port
         if msg != 'correct1\r\n' and msg != 'correct2\r\n':
+           
+            conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             key = self.session_key
             # self.send_port = 8888
             cipher = AES.new(key, AES.MODE_ECB)
@@ -57,7 +58,8 @@ class Client:
             # print(f'send_port:{self.send_port}')
             conn.send((str(len(msg))).encode()+ b'\r\n\r\n' + msg)
         else:
-            
+            conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            socket.setdefaulttimeout(2)
             if msg == 'correct1\r\n':
                 while 1:
                     try:
@@ -68,6 +70,7 @@ class Client:
                         if msg == b'correct2\r\n':
                             self.send_port = port
                             socket.setdefaulttimeout(None)
+                            conn.settimeout(None)
                             break
                     except ConnectionRefusedError or TimeoutError:
                         time.sleep(0.1)
@@ -107,6 +110,8 @@ class Client:
                     return msg,conn,self.server
                 else:
                     return msg,conn,self.server
+            except TimeoutError:
+                pass
             except Exception as e:
                 print(e)
                 traceback.print_exc()
