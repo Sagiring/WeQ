@@ -34,7 +34,7 @@ class Client:
 
     def send_msg(self, recv_ip, msg,isByte = False):
         key = self.session_key
-        self.send_port = 8888
+        # self.send_port = 8888
         cipher = AES.new(key, AES.MODE_ECB)
         if isByte:
             msg = cipher.encrypt(pad(msg, BLOCK_SIZE))
