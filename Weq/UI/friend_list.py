@@ -89,6 +89,7 @@ class FriendListGUI:
         result = close(self.current_user)
         self.isRunning.clear()
         self.root.destroy()
+        exit(0)
         
 
     def auto_fresh(self):
@@ -357,7 +358,7 @@ class FriendListGUI:
         return False
 
     # 刷新好友列表。
-    def refresh_friends(self,isFresh = True):
+    def refresh_friends(self):
         
         #从服务器获取好友列表ip端口号与在线状态 
         unread_message_backup = {}
