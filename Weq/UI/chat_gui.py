@@ -36,6 +36,9 @@ class ChatGUI(tk.Toplevel):
         recv_threading = threading.Thread(target=self.recv_msg,args=(recv_isRunning,))
         recv_threading.start()
 
+        message = 'correct1\r\n'
+        friendip = self.friend.ip
+        self.client.send_msg(friendip, message)
 
         self.create_widgets()  # 创建聊天界面的各个部件。
         self.load_messages()  # 加载显示聊天消息。
