@@ -67,12 +67,16 @@ class Client:
                         conn.connect((recv_ip,self.send_port))
                         conn.settimeout(2)
                         conn.send((str(len(msg))).encode()+ b'\r\n\r\n' +msg.encode())
+                        time.sleep(3)
                     except ConnectionRefusedError:
                         time.sleep(0.1)
                         self.send_port += 1
                     except TimeoutError:
                         time.sleep(0.1)
                         self.send_port += 1
+                    except OSError:
+                        conn.close()
+                        self.send_port = 8888
             else:
                 conn.connect((recv_ip,port))
                 conn.send((str(len(msg))).encode()+ b'\r\n\r\n' + msg.encode())
