@@ -117,6 +117,7 @@ class FriendListGUI:
             if item.ip == addr[0]:
                 item.unread_messages += 1
                 item.latest_message = "请求连接"
+                print('更新请求连接')
         self.refresh_friends()
 
     #加密信息

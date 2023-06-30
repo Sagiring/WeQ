@@ -4,6 +4,7 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 from threading import Thread
 import traceback
+import time
 BLOCK_SIZE = 16
 
 class Client:
@@ -13,10 +14,16 @@ class Client:
         for item in [addr[4][0] for addr in addrs]:
             if item[:2] == '10':
                 ip = item
-
+        
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server.bind((ip, port))
-        self.server.listen(5)
+        cnt = 0
+        while cnt<3:
+            try:
+                self.server.bind((ip, port))
+            except OSError:
+                time.sleep(3)
+                cnt +=1
+        self.server.listen(2)
 
     def __del__(self):
         self.server.close()
@@ -40,7 +47,7 @@ class Client:
             try:
                 conn, addr = self.server.accept()
                 data = conn.recv(1024)
-                print(data.split(b'\r\n\r\n')[0])
+                # print(data.split(b'\r\n\r\n')[0])
                 dataLen = int(data.split(b'\r\n\r\n')[0].decode())
                 msg = data.split(b'\r\n\r\n')[1]
                 Len = len(msg)
