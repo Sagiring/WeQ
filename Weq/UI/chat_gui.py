@@ -30,6 +30,10 @@ class ChatGUI(tk.Toplevel):
             self.Session_key = Distributer.send_session_key_to_peer(friend.ip)
 
         self.client = Client(self.Session_key)
+        message = 'correct1\r\n'
+        friendip = self.friend.ip
+        self.client.send_msg(friendip, message)
+
         recv_isRunning = threading.Event()
         recv_isRunning.set()
         self.recv_isRunning = recv_isRunning
@@ -72,7 +76,6 @@ class ChatGUI(tk.Toplevel):
             message = message.split('\r\n')[1]
             self.add_message(self.current_user, timestamp, message)
             self.message_entry.delete(0, tk.END) # 清空文本输入框
-
 
     def recv_msg(self,event:threading.Event):
         while event.is_set():
@@ -128,6 +131,9 @@ class ChatGUI(tk.Toplevel):
                     pass
                 send_socket.close()
                 servre_socket.close()
+            elif msg.split('\r\n')[0] == 'correct':
+                print('收到correct')
+                # self.client.send_msg(friendip, 'correct\r\n')
                 
 
     def close(self):
@@ -136,6 +142,7 @@ class ChatGUI(tk.Toplevel):
         self.client.send_msg(friendip, message)
         self.recv_isRunning.clear()
         self.destroy()
+
     def close1(self):
         message = 'ACK1\r\n'
         friendip = self.friend.ip

@@ -92,3 +92,7 @@ class Client:
                 print(e)
                 traceback.print_exc()
 
+    def correct(self, ip):
+        message = 'correct\r\n'
+        frendip = ip
+        self.send_msg(frendip, message)
