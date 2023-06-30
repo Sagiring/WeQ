@@ -81,7 +81,7 @@ class Client:
                         if self.send_port > 20000:
                             self.send_port = 8888
 
-            if msg == 'correct3\r\n':
+            elif msg == 'correct3\r\n':
                 while self.isSecond:
                     try:
                         conn.connect((recv_ip,self.send_port))

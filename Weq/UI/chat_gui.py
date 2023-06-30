@@ -16,6 +16,7 @@ class ChatGUI(tk.Toplevel):
         self.friend = friend
         self.pri_key = pri_key
         self.isFirst = True
+        self.isSecond = True
         self.current_user = current_user
         self.messages = messages
 
@@ -74,17 +75,27 @@ class ChatGUI(tk.Toplevel):
             #     self.recv_isRunning.set()
             #     self.recv_threading.start()
             self.isFirst = False
- 
-
-        message = self.message_entry.get() # 获取用户在文本输入框中输入的消息内容
-        if message:
-            message = 'msg\r\n' + message
-            friend_ip = self.friend.ip
-            self.client.send_msg(friend_ip,message)
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # 获取当前时间，并将其格式化为字符串表示
-            message = message.split('\r\n')[1]
-            self.add_message(self.current_user, timestamp, message)
-            self.message_entry.delete(0, tk.END) # 清空文本输入框
+        elif self.isSecond:
+            message = 'correct2\r\n'
+            friendip = self.friend.ip
+            # self.recv_isRunning.clear()
+            # self.recv_threading.join()
+            self.client.send_msg(friendip, message)
+            # if msg == 'correct2':
+            #     self.recv_isRunning.set()
+            #     self.recv_threading.start()
+            self.isSecond = False
+        
+        else:
+            message = self.message_entry.get() # 获取用户在文本输入框中输入的消息内容
+            if message:
+                message = 'msg\r\n' + message
+                friend_ip = self.friend.ip
+                self.client.send_msg(friend_ip,message)
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # 获取当前时间，并将其格式化为字符串表示
+                message = message.split('\r\n')[1]
+                self.add_message(self.current_user, timestamp, message)
+                self.message_entry.delete(0, tk.END) # 清空文本输入框
 
 
     def recv_msg(self,event:threading.Event):
@@ -154,7 +165,7 @@ class ChatGUI(tk.Toplevel):
                 # self.client.send_msg(friendip, message)
             elif msg.split('\r\n')[0] == 'correct2':
                 print('接受correct2')
-                self.isFirst = False
+                self.isSecond= False
                 message = 'correct3\r\n'
                 friendip = self.friend.ip
                 self.client.send_msg(friendip, message)
