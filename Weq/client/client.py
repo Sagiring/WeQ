@@ -47,9 +47,11 @@ class Client:
                 conn.connect((recv_ip,port))
                 self.send_port = port
                 break
-            except ConnectionRefusedError:
+            except ConnectionRefusedError or TimeoutError:
                 time.sleep(0.1)
                 port += 1
+                if port > 20000:
+                    break
         # print((str(len(msg))).encode())
         # print(f'send_port:{self.send_port}')
         conn.send((str(len(msg))).encode()+ b'\r\n\r\n' + msg)
@@ -71,8 +73,6 @@ class Client:
                     data = conn.recv(4096)
                     msg += data
                     Len += len(data)
-                    
-
                 # print(len(msg))
                 key = self.session_key
                 cipher = AES.new(key, AES.MODE_ECB)
