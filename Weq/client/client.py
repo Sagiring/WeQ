@@ -20,10 +20,11 @@ class Client:
         while cnt<3:
             try:
                 self.server.bind((ip, port))
+                break
             except OSError:
                 time.sleep(3)
                 cnt +=1
-        self.server.listen(2)
+        self.server.listen(5)
 
     def __del__(self):
         self.server.close()
