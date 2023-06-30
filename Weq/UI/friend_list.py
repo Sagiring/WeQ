@@ -57,7 +57,7 @@ class FriendListGUI:
             width=10,
             command=self.open_remove_friend_dialog
         )
-        self.remove_friend_button.pack(side=tk.RIGHT, padx=10, pady=10)
+        self.remove_friend_button.pack(side=tk.LEFT, padx=30, pady=10)
 
         self.remove_friend_button = tk.Button(
             self.root,
@@ -65,7 +65,7 @@ class FriendListGUI:
             width=10,
             command=self.Decrypt_images
         )
-        self.remove_friend_button.pack(side=tk.RIGHT, padx=30, pady=10)
+        self.remove_friend_button.pack(side=tk.RIGHT, padx=10, pady=10)
 
         self.add_friend_button = tk.Button(
             self.root,
@@ -73,7 +73,7 @@ class FriendListGUI:
             width=10,
             command=self.Encrypt_images
         )
-        self.add_friend_button.pack(side=tk.LEFT, padx=30, pady=10)
+        self.add_friend_button.pack(side=tk.RIGHT, padx=30, pady=10)
 
         
         self.root.protocol('WM_DELETE_WINDOW', self.close)
@@ -127,12 +127,15 @@ class FriendListGUI:
         # 创建弹出页面
         encrypt_window = tk.Toplevel(self.root)
         encrypt_window.title("加密图片")
-        encrypt_window.geometry("500x300")
+        encrypt_window.geometry("400x250")
 
         # 输入框
+  
         input_entry = tk.Entry(encrypt_window)
-        input_entry.pack(side=tk.LEFT, padx=10, pady=10)
-
+        input_entry.pack(side=tk.TOP, padx=10, pady=10)
+        # 设置输入框的文本行数和宽度
+        # input_entry.configure(height=3)
+        input_entry.configure(width=60)
 
 
         def crypto_photo(old_img):
@@ -147,43 +150,22 @@ class FriendListGUI:
             else:
                 return False
 
-        # 加号符号
+        # 加密图片
         def open_image():
             file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.png")])
             if file_path:
-                return crypto_photo(file_path)
-            # if file_path:
-            #     image = Image.open(file_path)
-            #     image.thumbnail((200, 200))  # 缩放图片大小为合适的尺寸
-            #     image_tk = ImageTk.PhotoImage(image)
-            #     image_label.configure(image=image_tk)
-            #     image_label.image = image_tk  # 保存对图片对象的引用
-            #     filepath['file_path'] = file_path
-                
-           
+                # return crypto_photo(file_path)
+                result = crypto_photo(file_path)
+                if result:
+                    messagebox.showinfo("加密成功", "加密图片成功，加密图片已保存到本地文件夹内")
+                else:
+                    messagebox.showwarning("加密失败", "加密图片失败，请确保输入框不为空")
+                return result
         
         plus_label = tk.Label(encrypt_window, text="加密图片", cursor="hand2")
-        plus_label.pack(side=tk.LEFT, padx=10)
+        plus_label.pack(side=tk.TOP, pady=20)
         plus_label.bind("<Button-1>", lambda event: open_image())  # 绑定点击事件，调用open_image函数
 
-     
-        # 图片框
-        # image_frame = tk.Frame(encrypt_window)
-        # image_frame.pack(side=tk.LEFT, padx=10)
-
-        # image_label = tk.Label(image_frame)
-        # image_label.pack()
-
-
-    
-
-            
-        # # 等号符号
-        # equal_label = tk.Label(encrypt_window, text="加密图片",cursor="hand2")
-        # equal_label.pack(side=tk.LEFT, padx=10)
-        # plus_label.bind("<Button-2>", lambda event: crypto_photo(filepath["file_path"]))#这里的event还没添加
-
- 
 
     # 解密信息
     def Decrypt_images(self):
@@ -210,17 +192,6 @@ class FriendListGUI:
             file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.png;")])
            
             return file_path
-            # if file_path:
-            #     image = Image.open(file_path)
-            #     image.thumbnail((200, 200))  # 缩放图片大小为合适的尺寸
-            #     image_tk = ImageTk.PhotoImage(image)
-            #     image_label.configure(image=image_tk)
-            #     image_label.image = image_tk  # 保存对图片对象的引用
-                # file_path['file_path'] = file_path
-        
-        # add_image_button = tk.Button(decrypt_window, text="添加图片", command=add_image)
-        # add_image_button.pack(side=tk.LEFT, padx=10, pady=10)
-
         def get_information():
             # 在这里编写获取信息的逻辑
             file_path = add_image()
@@ -231,13 +202,15 @@ class FriendListGUI:
                 # information_text.delete()
                 information_text.insert(tk.END, information + "\n")
 
+        # 文本框用于输出信息        
+        information_text = tk.Text(decrypt_window, height=6, width=60)
+        information_text.pack(side=tk.TOP, padx=10, pady=10)
 
         get_info_button = tk.Button(decrypt_window, text="获取信息", command=lambda: get_information())
-        get_info_button.pack(side=tk.LEFT, padx=10, pady=10)
+        get_info_button.pack(side=tk.TOP, padx=10, pady=10)
 
-        # 文本框用于输出信息
-        information_text = tk.Text(decrypt_window, height=5, width=30)
-        information_text.pack(side=tk.LEFT, padx=10, pady=10)
+ 
+
 
         # # 将滚动条与文本框关联
         # scrollbar.config(command=information_text.yview)
@@ -273,17 +246,17 @@ class FriendListGUI:
 
         ok_button = tk.Button(
             add_friend_dialog,
-            text="OK",
+            text="  OK  ",
             command=lambda: self.process_add_friend(username_entry.get(), add_friend_dialog)
         )
-        ok_button.pack()
+        ok_button.pack(side=tk.LEFT, padx=25)
 
         cancel_button = tk.Button(
             add_friend_dialog,
             text="Cancel",
             command=add_friend_dialog.destroy
         )
-        cancel_button.pack()
+        cancel_button.pack(side=tk.RIGHT, padx=25)
 
     def process_add_friend(self, username, dialog):
         if username == "":
@@ -301,8 +274,6 @@ class FriendListGUI:
                 else:
                     messagebox.showinfo("好友","添加失败")
         self.refresh_friends()
-     
-       
 
     def open_remove_friend_dialog(self):
         # 创建删除好友对话框
@@ -318,17 +289,17 @@ class FriendListGUI:
 
         ok_button = tk.Button(
             remove_friend_dialog,
-            text="OK",
+            text="  OK  ",
             command=lambda: self.process_remove_friend(username_entry.get(), remove_friend_dialog)
         )
-        ok_button.pack()
+        ok_button.pack(side=tk.LEFT, padx=25)
 
         cancel_button = tk.Button(
             remove_friend_dialog,
             text="Cancel",
             command=remove_friend_dialog.destroy
         )
-        cancel_button.pack()
+        cancel_button.pack(side=tk.RIGHT, padx=25)
 
     # 处理删除好友操作。检查输入的用户名是否合法，并进行相应的处理，如从列表中删除好友等。
     def process_remove_friend(self, username, dialog):
@@ -430,7 +401,7 @@ class FriendListGUI:
                 messages = []  # 存储消息的列表
                 chat_window = ChatGUI(self.root, self.current_user, messages,selected_friend,self.pri_key)
                 chat_window.title(f"与 {selected_friend.username} 的聊天")
-                chat_window.geometry("500x400")
+                #
 
                 # 设置好友的最新消息和未读消息数
                 selected_friend.latest_message = ""
