@@ -113,6 +113,9 @@ class FriendListGUI:
             if data['action'] == 'chat':
                 print('存储密钥')
                 self.session_key = KeyDistribution.get_session_key_from_peer(self.pri_key,data,addr)
+        for item in self.friends:
+            if item.ip == addr[0]:
+                item.unread_messages += 1
 
     #加密信息
     def Encrypt_images(self):
@@ -420,7 +423,7 @@ class FriendListGUI:
             
             if selected_friend.online:
                 messages = []  # 存储消息的列表
-                chat_window = ChatGUI(self.root, self.current_user, messages)
+                chat_window = ChatGUI(self.root, self.current_user, messages,selected_friend,self.pri_key)
                 chat_window.title(f"与 {selected_friend.username} 的聊天")
                 chat_window.geometry("500x400")
 
