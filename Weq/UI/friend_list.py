@@ -25,7 +25,7 @@ class FriendListGUI:
         self.current_user = None  # 当前用户的用户名
 
         self.root = tk.Toplevel()
-        self.root.title("好友列表")
+        self.root.title("您的好友列表")
         self.root.geometry("480x300")
         self.pri_key = pri_key
         self.friend_frame = tk.Frame(self.root)
