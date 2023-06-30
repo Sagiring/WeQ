@@ -66,13 +66,17 @@ class Client:
                         conn.connect((recv_ip,port))
                         conn.settimeout(2)
                         conn.send((str(len(msg))).encode()+ b'\r\n\r\n' +msg.encode())
-                        msg = conn.recv(1024)
+                        msg = conn.recv(len(b'correct2\r\n'))
                         if msg == b'correct2\r\n':
+                            print('已收到Correct2')
                             self.send_port = port
                             socket.setdefaulttimeout(None)
                             conn.settimeout(None)
                             break
-                    except ConnectionRefusedError or TimeoutError:
+                    except ConnectionRefusedError:
+                        time.sleep(0.1)
+                        port += 1
+                    except TimeoutError:
                         time.sleep(0.1)
                         port += 1
             else:
