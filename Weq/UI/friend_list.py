@@ -13,7 +13,7 @@ import time
 class Friend:
     def __init__(self, username, ip, port):
         self.username = username
-        self.ip = ip[1:-1]
+        self.ip = ip
         self.port = port
         self.online = False
         self.latest_message = ""
