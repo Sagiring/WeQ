@@ -5,24 +5,17 @@ import re
 import base64
 from Crypto import Random
 from Crypto.PublicKey import RSA
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import time
 import random
 
-def register(username,password,email):
+def register(username,password,email,code):
     k=check_password(password)
     if k == 2:
         print('密码格式错误')
         return False
     md=hashlib.md5(password.encode('utf-8'))
     md=md.hexdigest()
-    c=checkemail(email)
-    if c == 2:
-        print('邮箱格式错误')
-        return False
-    r=mailverification(email)
-    if r==2:
+    if code!=verification_code:
         print('邮箱验证失败')
         return False
     request = { "user": username, "passwd": md, "email": email}
@@ -82,10 +75,9 @@ def close(username):
 def check_password(password):
     result = re.compile(r'^(?![a-zA-z]+$)(?!\d+$)(?![!@#$%^&*.?]+$)[a-zA-Z\d!@#$%.?^&*]+$')
     if re.fullmatch(result, password):
-        k=1
+        return True
     else:
-        k=2
-    return k
+        return False
 
 def createkey():
     random_generator = Random.new().read
@@ -155,16 +147,13 @@ def send_email(address,email_message):
             auth = f"auth login\r\n"
             client_socket.send(auth.encode())
 
-
-
             auth = f"{base64.b64encode(bytes(sender_email, 'utf-8')).decode('utf-8')}\r\n"
             client_socket.send(auth.encode())
-
 
             auth = f"{base64.b64encode(bytes(sender_password, 'utf-8')).decode('utf-8')}\r\n"
             client_socket.send(auth.encode())
 
-
+            time.sleep(0.5)
 
             # 发送发件人信息
             mail_from_command = f'mail from: <{sender_email}>\r\n'
@@ -181,34 +170,21 @@ def send_email(address,email_message):
             # 发送数据命令
             data_command = 'data\r\n'
             client_socket.send(data_command.encode())
-            response = client_socket.recv(1024).decode()
-            print(response)
 
             From = f"From: <{sender_email}>\r\n"
             client_socket.send(From.encode())
-            response = client_socket.recv(1024).decode()
-            print(response)
 
             To = f"To: <{recipient_email}>\r\n"
             client_socket.send(To.encode())
-            response = client_socket.recv(1024).decode()
-            print(response)
 
             Subject = f"Subject: {subject}\r\n\r\n"
             client_socket.send(Subject.encode())
-            response = client_socket.recv(1024).decode()
-            print(response)
 
             Message = f"{email_message}\r\n"
             client_socket.send(Message.encode())
-            response = client_socket.recv(1024).decode()
-            print(response)
 
             end = ".\r\n"
             client_socket.send(end.encode())
-            response = client_socket.recv(1024).decode()
-            print(response)
-
 
             # 断开连接
             quit_command = 'QUIT\r\n'
@@ -224,17 +200,12 @@ def send_email(address,email_message):
 
 
 def mailverification(address):
+    global verification_code
     verification_code = generate_verification_code()
     email_message = create_email_message(verification_code)
-    r = 2
     s=send_email(address,email_message)
-    if s:
-        receive_code=input("请输入验证吗：")
-        if receive_code==verification_code:
-            r=1
-        else:
-            r=2
-    return r
+    return s
+
 
 
 
