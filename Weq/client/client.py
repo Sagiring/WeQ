@@ -76,7 +76,9 @@ class Client:
                         self.send_port += 1
                     except OSError:
                         conn.close()
-                        self.send_port = 8888
+                        self.send_port += 1
+                        if self.send_port > 20000:
+                            self.send_port = 8888
             else:
                 conn.connect((recv_ip,port))
                 conn.send((str(len(msg))).encode()+ b'\r\n\r\n' + msg.encode())
