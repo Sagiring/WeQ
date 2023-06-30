@@ -26,7 +26,7 @@ class FriendListGUI:
 
         self.root = tk.Toplevel()
         self.root.title("好友列表")
-        self.root.geometry("480x300")
+        self.root.geometry("480x400")
         self.pri_key = pri_key
         self.friend_frame = tk.Frame(self.root)
         self.friend_frame.pack(pady=10)
@@ -430,7 +430,6 @@ class FriendListGUI:
                 messages = []  # 存储消息的列表
                 chat_window = ChatGUI(self.root, self.current_user, messages,selected_friend,self.pri_key)
                 chat_window.title(f"与 {selected_friend.username} 的聊天")
-                chat_window.geometry("500x400")
 
                 # 设置好友的最新消息和未读消息数
                 selected_friend.latest_message = ""

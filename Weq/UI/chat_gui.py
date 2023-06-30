@@ -12,7 +12,7 @@ class ChatGUI(tk.Toplevel):
     def __init__(self, parent, current_user, messages,friend,pri_key):
         super().__init__(parent)
         self.title("聊天界面")
-        self.geometry("500x400")
+        self.geometry("500x700")
         self.friend = friend
         self.pri_key = pri_key
         
@@ -127,6 +127,16 @@ class ChatGUI(tk.Toplevel):
                     pass
                 send_socket.close()
                 servre_socket.close()
+            elif msg.split('\r\n')[0] == 'correct1':
+                print('接受correct1')
+                message = 'correct2\r\n'
+                friendip = self.friend.ip
+                self.client.send_msg(friendip, message)
+            elif msg.split('\r\n')[0] == 'correct2':
+                print('接受correct2')
+                print('握手成功')
+
+
                 
 
     def close(self):
