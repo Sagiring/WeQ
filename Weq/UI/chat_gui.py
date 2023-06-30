@@ -68,7 +68,7 @@ class ChatGUI(tk.Toplevel):
             message = 'correct1\r\n'
             friendip = self.friend.ip
             self.recv_isRunning.clear()
-            self.recv_threading.join()
+            # self.recv_threading.join()
             msg = self.client.send_msg(friendip, message)
             if msg == 'correct2':
                 self.recv_isRunning.set()
@@ -150,6 +150,7 @@ class ChatGUI(tk.Toplevel):
                 self.isFirst = False
                 message = 'correct2\r\n'
                 friendip = self.friend.ip
+                self.client.send_msg(friendip, message)
                 self.client.send_msg(friendip, message)
             elif msg.split('\r\n')[0] == 'correct2':
                 print('握手成功')
