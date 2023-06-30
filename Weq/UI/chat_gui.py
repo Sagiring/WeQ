@@ -126,7 +126,7 @@ class ChatGUI(tk.Toplevel):
         message = 'ACK1\r\n'
         friendip = self.friend.ip
         self.client.send_msg(friendip, message)
-        messagebox.showinfo('对方终止了聊天')
+        messagebox.showinfo('提示', '对方终止了聊天')
         self.destroy()
 
     # 发送图片
