@@ -12,6 +12,7 @@ class Client:
         self.session_key = session_key
         self.server_port = port
         self.send_port = port
+        self.isFisrt = True
         addrs = socket.getaddrinfo(socket.gethostname(), None)
         for item in [addr[4][0] for addr in addrs]:
             if item[:2] == '10':
@@ -47,13 +48,13 @@ class Client:
                 msg = cipher.encrypt(pad(msg.encode('utf-8'), BLOCK_SIZE))
            
             while 1:
-                try:
+                # try:
                     conn.connect((recv_ip,port))
                     self.send_port = port
                     break
-                except ConnectionRefusedError:
-                    time.sleep(0.1)
-                    port += 1
+                # except ConnectionRefusedError:
+                #     time.sleep(0.1)
+                #     port += 1
             # print((str(len(msg))).encode())
             # print(f'send_port:{self.send_port}')
             conn.send((str(len(msg))).encode()+ b'\r\n\r\n' + msg)
@@ -61,24 +62,17 @@ class Client:
             conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             socket.setdefaulttimeout(2)
             if msg == 'correct1\r\n':
-                while 1:
+                while self.isFisrt:
                     try:
-                        conn.connect((recv_ip,port))
+                        conn.connect((recv_ip,self.send_port))
                         conn.settimeout(2)
                         conn.send((str(len(msg))).encode()+ b'\r\n\r\n' +msg.encode())
-                        msg = conn.recv(len(b'correct2\r\n'))
-                        if msg == b'correct2\r\n':
-                            print('已收到Correct2')
-                            self.send_port = port
-                            socket.setdefaulttimeout(None)
-                            conn.settimeout(None)
-                            return 'correct2'
                     except ConnectionRefusedError:
                         time.sleep(0.1)
-                        port += 1
+                        self.send_port += 1
                     except TimeoutError:
                         time.sleep(0.1)
-                        port += 1
+                        self.send_port += 1
             else:
                 conn.connect((recv_ip,port))
                 conn.send((str(len(msg))).encode()+ b'\r\n\r\n' + msg.encode())
@@ -114,6 +108,13 @@ class Client:
                         msg = unpad(cipher.decrypt(msg), BLOCK_SIZE).decode('utf-8', errors='ignore')
                     return msg,conn,self.server
                 else:
+                    # msg = conn.recv(len(b'correct2\r\n'))
+                    if msg == b'correct2\r\n':
+                        print('已收到Correct2')
+                        socket.setdefaulttimeout(None)
+                        conn.settimeout(None)
+                        self.isFisrt = False
+   
                     return msg,conn,self.server
             except TimeoutError:
                 pass

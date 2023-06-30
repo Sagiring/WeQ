@@ -67,12 +67,12 @@ class ChatGUI(tk.Toplevel):
         if self.isFirst:
             message = 'correct1\r\n'
             friendip = self.friend.ip
-            self.recv_isRunning.clear()
+            # self.recv_isRunning.clear()
             # self.recv_threading.join()
-            msg = self.client.send_msg(friendip, message)
-            if msg == 'correct2':
-                self.recv_isRunning.set()
-                self.recv_threading.start()
+            self.client.send_msg(friendip, message)
+            # if msg == 'correct2':
+            #     self.recv_isRunning.set()
+            #     self.recv_threading.start()
             self.isFirst = False
  
 
