@@ -107,30 +107,29 @@ class ChatGUI(tk.Toplevel):
             elif msg.split('\r\n')[0] == 'close1':
                 self.close1()
             elif msg.split('\r\n')[0] == 'ACK1':
-                servre_socket.shutdown(socket.SHUT_RD)
-                servre_socket.close()
+                
                 print('接收ACK1')
                 message = 'ACK2\r\n'
                 friendip = self.friend.ip
                 self.client.send_msg(friendip, message)
-                send_socket.shutdown(socket.SHUT_RDWR)
+                servre_socket.shutdown(socket.SHUT_RDWR)
                 send_socket.close()
-            elif msg.split('\r\n')[0] == 'ACK2':
-                print('接收ACK2')
-                send_socket.shutdown(socket.SHUT_RDWR)
-                send_socket.close()
-                servre_socket.shutdown(socket.SHUT_RD)
                 servre_socket.close()
+            elif msg.split('\r\n')[0] == 'ACK2':
+                self.recv_isRunning.clear()
+                print('接收ACK2')
+                servre_socket.shutdown(socket.SHUT_RDWR)
+                send_socket.close()
+                servre_socket.close()
+                
 
     def close(self):
-        self.recv_isRunning.clear()
         message = 'close1\r\n'
         friendip = self.friend.ip
         self.client.send_msg(friendip, message)
-        self.destroy()
-
-    def close1(self):
         self.recv_isRunning.clear()
+        self.destroy()
+    def close1(self):
         message = 'ACK1\r\n'
         friendip = self.friend.ip
         self.client.send_msg(friendip, message)
