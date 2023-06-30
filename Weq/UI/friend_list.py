@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 from ..login_friend_logic import *
 from .chat_gui import ChatGUI
-from PIL import Image, ImageTk
+# from PIL import Image, ImageTk
 from tkinter import filedialog
 import socket
 import json
@@ -75,14 +75,25 @@ class FriendListGUI:
         )
         self.add_friend_button.pack(side=tk.LEFT, padx=30, pady=10)
 
+        
+        self.root.protocol('WM_DELETE_WINDOW', self.close)
+        isRunning = threading.Event()
+        isRunning.set()
+        self.isRunning = isRunning
         key_threading = threading.Thread(target=self.key_server)
         key_threading.start()
         refresh = threading.Thread(target=self.auto_fresh)
         refresh.start()
 
+    def close(self):
+        result = close(self.current_user)
+        self.isRunning.clear()
+        self.root.destroy()
+        
+
     def auto_fresh(self):
-        while 1:
-            time.sleep(5)
+        while self.isRunning.is_set():
+            time.sleep(3)
             self.refresh_friends()
             
         
@@ -95,7 +106,7 @@ class FriendListGUI:
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.bind((ip, 6666))
         server.listen(5)
-        while 1:
+        while self.isRunning.is_set():
             conn, addr = server.accept()
             data = json.loads(conn.recv(4096).decode('utf-8'))
             print('已收到密钥')
