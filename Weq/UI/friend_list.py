@@ -89,6 +89,7 @@ class FriendListGUI:
         result = close(self.current_user)
         self.isRunning.clear()
         self.root.destroy()
+        exit(0)
         
 
     def auto_fresh(self):
@@ -113,12 +114,13 @@ class FriendListGUI:
             if data['action'] == 'chat':
                 print('存储密钥')
                 self.session_key = KeyDistribution.get_session_key_from_peer(self.pri_key,data,addr)
-        for item in self.friends:
-            if item.ip == addr[0]:
-                item.unread_messages += 1
-                item.latest_message = "请求连接"
-                print('更新请求连接')
-        self.refresh_friends()
+                for item in self.friends:
+                    # print(item.ip)
+                    # print(addr[0])
+                    if item.ip == addr[0]:
+                        item.unread_messages += 1
+                        print('更新请求连接')
+                self.refresh_friends()
 
     #加密信息
     def Encrypt_images(self):
@@ -354,16 +356,18 @@ class FriendListGUI:
             if friend.username == username:
                 return True
         return False
-    
-    # 根据用户名从好友列表中删除好友。
-    def remove_friend_by_username(self, username):
-        self.friends = [friend for friend in self.friends if friend.username != username]
 
     # 刷新好友列表。
     def refresh_friends(self):
+        
         #从服务器获取好友列表ip端口号与在线状态 
+        unread_message_backup = {}
+        friend_backup =  self.friends
+        for item in friend_backup:
+            if item.ip != 0:
+                unread_message_backup[item.ip] = item.unread_messages
+        
         self.friends =  []
-        self.friend_listbox.delete(0,tk.END)
         friend_list = getFriends(self.current_user)
         # print(friend_list)
         if friend_list:
@@ -374,49 +378,47 @@ class FriendListGUI:
                 self.friends.append(friend)
         else:
             return False
+        
+        for backup_ip in unread_message_backup.keys():
+            for item in self.friends:
+                if item.ip == backup_ip:
+                    item.unread_messages = unread_message_backup[backup_ip]
+           
 
-        # 按照在线状态和最近聊天将好友排序
-        sorted_friends = sorted(
-            self.friends,
-            key=lambda friend: (not friend.online, friend.latest_message),
-            reverse=True
-        )
 
-        # 将在线用户置顶
-        online_friends = [friend for friend in sorted_friends if friend.online]
-        offline_friends = [friend for friend in sorted_friends if not friend.online]
-        sorted_friends = online_friends + offline_friends
+        self.friends.sort(key=lambda friend: (friend.online, friend.unread_messages), reverse=True)
+        # 清空好友列表
+        self.friend_listbox.delete(0, tk.END)
 
         # 更新好友列表
-        for friend in sorted_friends:
+        for friend in self.friends:
             status = "在线" if friend.online else "离线"
             # 截断最新消息长度并添加省略号
             latest_message = friend.latest_message[:10] + "..." if len(friend.latest_message) > 10 else friend.latest_message
             # 根据在线状态设置文本颜色
-            text_color = "green" if friend.online else "black"
+            if friend.unread_messages > 0:
+                text_color = "red"
+            else:
+                text_color = "green" if friend.online else "black"
             friend_info = f"{friend.username}  IP: {friend.ip}  Port: {friend.port} [{status}] {latest_message} ({friend.unread_messages})"
             self.friend_listbox.insert(tk.END, friend_info)
             self.friend_listbox.itemconfig(tk.END, fg=text_color)
-            
 
-    # 设置好友的在线状态。
-    def set_online_status(self, username, is_online):
-        for friend in self.friends:
-            if friend.username == username:
-                friend.online = is_online
-                break
+    # # 设置好友的在线状态。
+    # def set_online_status(self, username, online):
+    #     friend = next((f for f in self.friends if f.username == username), None)
+    #     if friend:
+    #         friend.online = online
+    #         self.refresh_friends()
 
-        self.refresh_friends()
+    # # 设置好友的最新消息。
+    # def set_latest_message(self, username, message):
+    #     for friend in self.friends:
+    #         if friend.username == username:
+    #             friend.latest_message = message
+    #             friend.unread_messages += 1
+    #             break
 
-    # 设置好友的最新消息。
-    def set_latest_message(self, username, message):
-        for friend in self.friends:
-            if friend.username == username:
-                friend.latest_message = message
-                friend.unread_messages += 1
-                break
-
-        self.refresh_friends()
 
     def open_chat_window(self, event):
         selected_friend_index_tuple = event.widget.curselection()
