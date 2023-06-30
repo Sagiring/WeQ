@@ -15,7 +15,7 @@ class ChatGUI(tk.Toplevel):
         self.geometry("500x700")
         self.friend = friend
         self.pri_key = pri_key
-        
+        self.isFirst = True
         self.current_user = current_user
         self.messages = messages
 
@@ -36,9 +36,7 @@ class ChatGUI(tk.Toplevel):
         recv_threading = threading.Thread(target=self.recv_msg,args=(recv_isRunning,))
         recv_threading.start()
 
-        message = 'correct1\r\n'
-        friendip = self.friend.ip
-        self.client.send_msg(friendip, message)
+   
 
         self.create_widgets()  # 创建聊天界面的各个部件。
         self.load_messages()  # 加载显示聊天消息。
@@ -66,6 +64,12 @@ class ChatGUI(tk.Toplevel):
 
     # 处理发送消息的逻辑
     def send_message(self):
+        if self.isFirst:
+            message = 'correct1\r\n'
+            friendip = self.friend.ip
+            self.client.send_msg(friendip, message)
+            self.isFirst = False
+
         message = self.message_entry.get() # 获取用户在文本输入框中输入的消息内容
         if message:
             message = 'msg\r\n' + message
