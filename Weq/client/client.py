@@ -10,26 +10,28 @@ BLOCK_SIZE = 16
 class Client:
     def __init__(self,session_key ,port = 8888):
         self.session_key = session_key
+        self.server_port = port
+        self.recv_port = port
         addrs = socket.getaddrinfo(socket.gethostname(), None)
         for item in [addr[4][0] for addr in addrs]:
             if item[:2] == '10':
                 ip = item
         
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        cnt = 0
-        while cnt<3:
+        while 1:
             try:
                 self.server.bind((ip, port))
+                self.server_port = port
                 break
             except OSError:
-                time.sleep(3)
-                cnt +=1
+                time.sleep(0.1)
+                port += 1
         self.server.listen(5)
 
     def __del__(self):
         self.server.close()
 
-    def send_msg(self, recv_ip, msg,isByte = False, recv_port=8888):
+    def send_msg(self, recv_ip, msg,isByte = False):
         key = self.session_key
         cipher = AES.new(key, AES.MODE_ECB)
         if isByte:
@@ -37,7 +39,15 @@ class Client:
         else:
             msg = cipher.encrypt(pad(msg.encode('utf-8'), BLOCK_SIZE))
         conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        conn.connect((recv_ip, recv_port))
+        port = self.recv_port
+        while 1:
+            try:
+                conn.connect((recv_ip,port))
+                self.recv_port = port
+                break
+            except OSError:
+                time.sleep(0.1)
+                port += 1
         # print((str(len(msg))).encode())
         conn.send((str(len(msg))).encode()+ b'\r\n\r\n' + msg)
         
@@ -79,10 +89,3 @@ class Client:
                 print(e)
                 traceback.print_exc()
 
-    def chat(self, recv_ip, recv_port):
-        t1 = Thread(target=self.recv_msg)
-        t2 = Thread(target=self.send_msg, args=(recv_ip, recv_port))
-        t1.start()
-        t2.start()
-        t1.join()
-        t2.join()
