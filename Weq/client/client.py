@@ -60,11 +60,13 @@ class Client:
             # print(f'send_port:{self.send_port}')
             conn.send((str(len(msg))).encode()+ b'\r\n\r\n' + msg)
         else:
-            conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            socket.setdefaulttimeout(2)
+ 
+          
             if msg[:len(b'correct1\r\n')] == 'correct1\r\n' :
                 while self.isFisrt:
                     try:
+                        conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                        socket.setdefaulttimeout(2)
                         conn.connect((recv_ip,self.send_port))
                         conn.settimeout(2)
                         conn.send((str(len(msg))).encode()+ b'\r\n\r\n' +msg.encode())
@@ -81,7 +83,10 @@ class Client:
                         if self.send_port > 20000:
                             self.send_port = 8888
             else:
+                conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                conn.connect((recv_ip,self.send_port))
                 conn.send((str(len(msg))).encode()+ b'\r\n\r\n' +msg.encode())
+                conn.close()
 
                 
                     
