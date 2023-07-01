@@ -101,7 +101,7 @@ class KeyDistribution:
         
         if selfip < friend_ip:
             selfip,friend_ip = friend_ip,selfip
-        for item in KeyDistribution._All_session_key.keys():
+        for item in list(KeyDistribution._All_session_key.keys()):
                 if f'{selfip},{friend_ip}' == item:
                     KeyDistribution._All_session_key.pop(item)
                     print('本次密钥已删除')
