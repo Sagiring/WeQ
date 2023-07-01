@@ -22,13 +22,14 @@ class ChatGUI(tk.Toplevel):
 
         self.max_image_width = 400  # 设置图片的最大宽度
         self.max_image_height = 300  # 设置图片的最大高度
-        self.KeyDistribution = KeyDistribution.get_session_key(friend_ip = friend.ip)
-        if self.KeyDistribution:
-            self.Session_key = self.KeyDistribution 
+        Session = KeyDistribution.get_session_key(friend_ip = friend.ip)
+        if Session:
+            self.Session_key = Session 
         else:
             Distributer = KeyDistribution(pri_key)
             Distributer.get_session_key_from_server(current_user,friend.username)
             self.Session_key = Distributer.send_session_key_to_peer(friend.ip)
+            self.Distributer = Distributer
 
         self.client = Client(self.Session_key)
         recv_isRunning = threading.Event()
@@ -172,14 +173,14 @@ class ChatGUI(tk.Toplevel):
         friendip = self.friend.ip
         self.client.send_msg(friendip, message)
         self.recv_isRunning.clear()
-        self.KeyDistribution.pop_session_key(self.friend.ip)
+        self.Distributer.pop_session_key(self.friend.ip)
         self.destroy()
 
     def close1(self):
         message = 'ACK1\r\n'
         friendip = self.friend.ip
         self.client.send_msg(friendip, message)
-        self.KeyDistribution.pop_session_key(self.friend.ip)
+        self.Distributer.pop_session_key(self.friend.ip)
         self.destroy()
         messagebox.showinfo('提示', '对方终止了聊天')
        
