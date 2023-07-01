@@ -37,7 +37,7 @@ class Client:
     def send_msg(self, recv_ip, msg,isByte = False):
        
         port = self.send_port
-        if msg != 'correct1\r\n' and msg != 'correct2\r\n':
+        if msg[:len('correct1\r\n')] != 'correct1\r\n' and msg != 'correct2\r\n':
            
             conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             key = self.session_key
@@ -62,32 +62,13 @@ class Client:
         else:
             conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             socket.setdefaulttimeout(2)
-            if msg == 'correct1\r\n' :
+            if msg[:len(b'correct1\r\n')] == 'correct1\r\n' :
                 while self.isFisrt:
                     try:
                         conn.connect((recv_ip,self.send_port))
                         conn.settimeout(2)
                         conn.send((str(len(msg))).encode()+ b'\r\n\r\n' +msg.encode())
-                        time.sleep(3)
-                    except ConnectionRefusedError:
-                        time.sleep(0.1)
-                        self.send_port += 1
-                    except TimeoutError:
-                        time.sleep(0.1)
-                        self.send_port += 1
-                    except OSError:
-                        conn.close()
-                        self.send_port += 1
-                        if self.send_port > 20000:
-                            self.send_port = 8888
-
-            elif msg == 'correct3\r\n':
-                while self.isSecond:
-                    try:
-                        conn.connect((recv_ip,self.send_port))
-                        conn.settimeout(2)
-                        conn.send((str(len(msg))).encode()+ b'\r\n\r\n' +msg.encode())
-                        time.sleep(3)
+                        time.sleep(1)
                     except ConnectionRefusedError:
                         time.sleep(0.1)
                         self.send_port += 1
@@ -100,8 +81,8 @@ class Client:
                         if self.send_port > 20000:
                             self.send_port = 8888
             else:
-                conn.connect((recv_ip,port))
-                conn.send((str(len(msg))).encode()+ b'\r\n\r\n' + msg.encode())
+                conn.send((str(len(msg))).encode()+ b'\r\n\r\n' +msg.encode())
+
                 
                     
         
@@ -124,7 +105,7 @@ class Client:
                     msg += data
                     Len += len(data)
                     
-                if msg != b'correct1\r\n' and msg != b'correct2\r\n':
+                if msg[:len(b'correct1\r\n')] != b'correct1\r\n' and msg != b'correct2\r\n':
                     # print(len(msg))
                     key = self.session_key
                     cipher = AES.new(key, AES.MODE_ECB)
@@ -140,12 +121,7 @@ class Client:
                         socket.setdefaulttimeout(None)
                         conn.settimeout(None)
                         self.isFisrt = False
-                    elif msg == b'correct3\r\n':
-                        print('已收到Correct3')
-                        socket.setdefaulttimeout(None)
-                        conn.settimeout(None)
-                        self.isSecond = False
-   
+ 
                     return msg,conn,self.server
             except TimeoutError:
                 pass
@@ -153,7 +129,10 @@ class Client:
                 print(e)
                 traceback.print_exc()
 
-    def correct(self, ip):
-        message = 'correct\r\n'
-        frendip = ip
-        self.send_msg(frendip, message)
+
+    def get_server_port(self):
+        return self.server_port
+    
+    
+    def modify_send_port(self,send_port):
+        self.send_port = send_port

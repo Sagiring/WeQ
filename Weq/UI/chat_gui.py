@@ -66,7 +66,7 @@ class ChatGUI(tk.Toplevel):
     # 处理发送消息的逻辑
     def send_message(self):
         if self.isFirst:
-            message = 'correct1\r\n'
+            message = f'correct1\r\n{self.client.get_server_port()}'
             friendip = self.friend.ip
             # self.recv_isRunning.clear()
             # self.recv_threading.join()
@@ -75,17 +75,6 @@ class ChatGUI(tk.Toplevel):
             #     self.recv_isRunning.set()
             #     self.recv_threading.start()
             self.isFirst = False
-          
-        # elif self.isSecond:
-        #     message = 'correct2\r\n'
-        #     friendip = self.friend.ip
-        #     # self.recv_isRunning.clear()
-        #     # self.recv_threading.join()
-        #     self.client.send_msg(friendip, message)
-        #     # if msg == 'correct2':
-        #     #     self.recv_isRunning.set()
-        #     #     self.recv_threading.start()
-        #     self.isSecond = False
             
         message = self.message_entry.get() # 获取用户在文本输入框中输入的消息内容
         if message:
@@ -159,19 +148,15 @@ class ChatGUI(tk.Toplevel):
                 send_socket.close()
                 servre_socket.close()
             elif msg.split('\r\n')[0] == 'correct1':
-                print('接受correct1')
+                print('收到correct1')
+                self.client.modify_send_port(int(msg.split('\r\n')[1]))
+                print('收到发送方端口')
                 self.isFirst = False
                 message = 'correct2\r\n'
                 friendip = self.friend.ip
                 self.client.send_msg(friendip, message)
                 # self.client.send_msg(friendip, message)
-            elif msg.split('\r\n')[0] == 'correct2':
-                print('接受correct2')
-                # self.isSecond= False
-                message = 'correct3\r\n'
-                friendip = self.friend.ip
-                self.client.send_msg(friendip, message)
-                # self.client.send_msg(friendip, message)
+          
                 
 
 
