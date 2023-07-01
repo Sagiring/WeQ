@@ -60,7 +60,7 @@ class KeyDistribution:
 
         data = json.dumps(data)
         sk = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        print((friend_ip, port))
+        print(f'[info] 接收到握手请求{friend_ip}')
         sk.connect((friend_ip, port))
         sk.send(data.encode('utf-8'))
         sk.close()
