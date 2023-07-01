@@ -98,12 +98,13 @@ class KeyDistribution:
     @staticmethod
     def pop_session_key(friend_ip):
         selfip = KeyDistribution.get_selfip()
-
+        
         if selfip < friend_ip:
             selfip,friend_ip = friend_ip,selfip
         for item in KeyDistribution._All_session_key.keys():
                 if f'{selfip},{friend_ip}' == item:
                     KeyDistribution._All_session_key.pop(item)
+                    print('本次密钥已删除')
 
     @staticmethod
     def get_selfip():
