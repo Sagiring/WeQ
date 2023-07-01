@@ -29,7 +29,7 @@ class ChatGUI(tk.Toplevel):
             Distributer = KeyDistribution(pri_key)
             Distributer.get_session_key_from_server(current_user,friend.username)
             self.Session_key = Distributer.send_session_key_to_peer(friend.ip)
-            self.Distributer = Distributer
+            #self.Distributer = Distributer
 
         self.client = Client(self.Session_key)
         recv_isRunning = threading.Event()
@@ -173,14 +173,14 @@ class ChatGUI(tk.Toplevel):
         friendip = self.friend.ip
         self.client.send_msg(friendip, message)
         self.recv_isRunning.clear()
-        self.Distributer.pop_session_key(self.friend.ip)
+        KeyDistribution.pop_session_key(self.friend.ip)
         self.destroy()
 
     def close1(self):
         message = 'ACK1\r\n'
         friendip = self.friend.ip
         self.client.send_msg(friendip, message)
-        self.Distributer.pop_session_key(self.friend.ip)
+        KeyDistribution.pop_session_key(self.friend.ip)
         self.destroy()
         messagebox.showinfo('提示', '对方终止了聊天')
        
