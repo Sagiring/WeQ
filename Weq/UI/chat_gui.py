@@ -177,6 +177,16 @@ class ChatGUI(tk.Toplevel):
 
     # 发送图片
     def select_image(self):
+        if self.isFirst:
+            message = 'correct1\r\n'
+            friendip = self.friend.ip
+            # self.recv_isRunning.clear()
+            # self.recv_threading.join()
+            self.client.send_msg(friendip, message)
+            # if msg == 'correct2':
+            #     self.recv_isRunning.set()
+            #     self.recv_threading.start()
+            self.isFirst = False
         file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.png;*.jpg;*.jpeg")])
         if file_path:
             self.send_image(file_path)
@@ -192,6 +202,7 @@ class ChatGUI(tk.Toplevel):
         self.show_photo(file_path)
 
     def show_photo(self,file_path):
+
         # 加载选定的图片
         image = Image.open(file_path)
         # 调整图片大小
