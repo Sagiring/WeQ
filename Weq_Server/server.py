@@ -3,6 +3,7 @@ import threading
 from log import Log
 from login import Login
 import json
+import time
 _logger = Log()
 
 
@@ -15,7 +16,13 @@ def server():
     http_port = 16666
     server_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         #                           地址簇 IPv4         使用TCP传输控制协议
-    server_socket.bind((http_ip,http_port))
+    while 1:
+        try:
+            server_socket.bind((http_ip,http_port))
+            break
+        except OSError:
+            _logger.i('端口冲突,3s后重试')
+            time.sleep(3)
     server_socket.listen(5)
     _logger.i(f'服务器启动成功{http_ip}:{http_port}')
     _logger.i('监听中...')

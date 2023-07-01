@@ -77,7 +77,11 @@ class LoginPage(tk.Frame):
 
         username = self.entry_username.get()
         password = self.entry_password.get()
-        result = Weq.login(username,password)
+        try:
+            result = Weq.login(username,password)
+        except ConnectionRefusedError:
+            messagebox.showinfo("错误", "网络异常或服务器异常")
+            
         if result:
             messagebox.showinfo("登录", "登录成功")
             pri_key = Weq.addPubkey(username)
@@ -171,5 +175,6 @@ class SuccessPage(tk.Frame):
         self.label_success.pack()
 
 if __name__ == "__main__":
+
     app = InstantMessengerApp()
     app.mainloop()
