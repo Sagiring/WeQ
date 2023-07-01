@@ -65,16 +65,7 @@ class ChatGUI(tk.Toplevel):
 
     # 处理发送消息的逻辑
     def send_message(self):
-        if self.isFirst:
-            message = f'correct1\r\n{self.client.get_server_port()}'
-            friendip = self.friend.ip
-            # self.recv_isRunning.clear()
-            # self.recv_threading.join()
-            self.client.send_msg(friendip, message)
-            # if msg == 'correct2':
-            #     self.recv_isRunning.set()
-            #     self.recv_threading.start()
-            self.isFirst = False
+        self.check_port()
             
         message = self.message_entry.get() # 获取用户在文本输入框中输入的消息内容
         if message:
@@ -84,7 +75,20 @@ class ChatGUI(tk.Toplevel):
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # 获取当前时间，并将其格式化为字符串表示
                 message = message.split('\r\n')[1]
                 self.add_message(self.current_user, timestamp, message)
-                self.message_entry.delete(0, tk.END) # 清空文本输入框
+                self.message_entry.delete(0, tk.END) 
+
+    def check_port(self):
+        if self.isFirst:
+            message = f'correct1\r\n{self.client.get_server_port()}'
+            friendip = self.friend.ip
+            # self.recv_isRunning.clear()
+            # self.recv_threading.join()
+            self.client.send_msg(friendip, message)
+            # if msg == 'correct2':
+            #     self.recv_isRunning.set()
+            #     self.recv_threading.start()
+            self.isFirst = False# 清空文本输入框
+        
 
 
 
@@ -177,16 +181,8 @@ class ChatGUI(tk.Toplevel):
 
     # 发送图片
     def select_image(self):
-        if self.isFirst:
-            message = 'correct1\r\n'
-            friendip = self.friend.ip
-            # self.recv_isRunning.clear()
-            # self.recv_threading.join()
-            self.client.send_msg(friendip, message)
-            # if msg == 'correct2':
-            #     self.recv_isRunning.set()
-            #     self.recv_threading.start()
-            self.isFirst = False
+       
+        self.check_port()
         file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.png;*.jpg;*.jpeg")])
         if file_path:
             self.send_image(file_path)
