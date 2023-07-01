@@ -140,6 +140,7 @@ class ChatGUI(tk.Toplevel):
                 self.client.send_msg(friendip, message)
                 try:
                     servre_socket.shutdown(socket.SHUT_RDWR)
+                    KeyDistribution.pop_session_key(self.friend.ip)
                 except OSError:
                     pass
                 send_socket.close()
@@ -149,6 +150,7 @@ class ChatGUI(tk.Toplevel):
                 print('接收ACK2')
                 try:
                     servre_socket.shutdown(socket.SHUT_RDWR)
+                    KeyDistribution.pop_session_key(self.friend.ip)
                 except OSError:
                     pass
                 send_socket.close()
@@ -173,14 +175,12 @@ class ChatGUI(tk.Toplevel):
         friendip = self.friend.ip
         self.client.send_msg(friendip, message)
         self.recv_isRunning.clear()
-        KeyDistribution.pop_session_key(self.friend.ip)
         self.destroy()
 
     def close1(self):
         message = 'ACK1\r\n'
         friendip = self.friend.ip
         self.client.send_msg(friendip, message)
-        KeyDistribution.pop_session_key(self.friend.ip)
         self.destroy()
         messagebox.showinfo('提示', '对方终止了聊天')
        
