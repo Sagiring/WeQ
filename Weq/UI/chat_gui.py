@@ -6,7 +6,7 @@ from ..client import KeyDistribution,Client
 import threading
 import time
 import socket
-import sys
+import _thread
 from ..log import Log
 _logger = Log()
 
@@ -181,7 +181,8 @@ class ChatGUI(tk.Toplevel):
         self.client.send_msg(friendip, message)
         self.recv_isRunning.clear()
         self.destroy()
-        sys.exit(0)
+        _thread.exit()
+
 
     def close1(self):
         message = 'ACK1\r\n'
@@ -190,7 +191,9 @@ class ChatGUI(tk.Toplevel):
         self.recv_isRunning.clear()
         self.destroy()
         messagebox.showinfo('提示', '对方终止了聊天')
-        sys.exit(0)
+        _thread.exit()
+
+
         
         
        
