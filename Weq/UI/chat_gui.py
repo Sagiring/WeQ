@@ -25,25 +25,25 @@ class ChatGUI(tk.Toplevel):
         if Session:
             self.Session_key = Session 
             self.client = Client(self.Session_key)
+            self.start_recv()
             self.check_port()
         else:
             Distributer = KeyDistribution(pri_key)
             Distributer.get_session_key_from_server(current_user,friend.username)
             self.Session_key = Distributer.send_session_key_to_peer(friend.ip)
             self.client = Client(self.Session_key)
+            self.start_recv()
+            
+        self.create_widgets()  # 创建聊天界面的各个部件。
+        self.load_messages()  # 加载显示聊天消息。
+        self.protocol('WM_DELETE_WINDOW', self.close)
 
-       
+    def start_recv(self):
         recv_isRunning = threading.Event()
         recv_isRunning.set()
         self.recv_isRunning = recv_isRunning
         self.recv_threading = threading.Thread(target=self.recv_msg,args=(recv_isRunning,))
         self.recv_threading.start()
-
-   
-
-        self.create_widgets()  # 创建聊天界面的各个部件。
-        self.load_messages()  # 加载显示聊天消息。
-        self.protocol('WM_DELETE_WINDOW', self.close)
 
 
     def create_widgets(self):

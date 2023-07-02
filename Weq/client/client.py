@@ -83,7 +83,7 @@ class Client:
                     except OSError:
                         conn.close()
                         self.send_port += 1
-                        if self.send_port > 20000:
+                        if self.send_port > 9000:
                             self.send_port = 8888
                 _logger.i(f'已确认对方端口号为{self.send_port}')
             else:
