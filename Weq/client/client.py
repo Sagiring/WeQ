@@ -41,7 +41,7 @@ class Client:
     def send_msg(self, recv_ip, msg,isByte = False):
        
         port = self.send_port
-        if msg[:len('correct1\r\n')] != 'correct1\r\n' and msg != 'correct2\r\n':
+        if msg[:len('correct1\r\n')] != 'correct1\r\n' and msg != 'correct2\r\n' and msg != 'wrong_port\r\n':
             conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             key = self.session_key
             # self.send_port = 8888
@@ -88,7 +88,7 @@ class Client:
                         if self.send_port > 8900:
                             self.send_port = 8888
                 _logger.i(f'已确认对方端口号为{self.send_port}')
-            else:
+            elif msg == 'correct2\r\n':
                 conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 _logger.i(f'已收到握手请求,正在确认')
                 while 1:
@@ -100,6 +100,20 @@ class Client:
                         time.sleep(0.5)
                 conn.send((str(len(msg))).encode()+ b'\r\n\r\n' +msg.encode())
                 _logger.i(f'确认握手,已发送')
+                conn.close()
+
+            elif msg == 'wrong_port\r\n':
+                conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                _logger.i(f'正在拒绝握手请求')
+                while 1:
+                    try:
+                        _logger.i(f'拒绝握手,正在发送')
+                        conn.connect((recv_ip,self.send_port))
+                        break
+                    except TimeoutError:
+                        time.sleep(0.5)
+                conn.send((str(len(msg))).encode()+ b'\r\n\r\n' +msg.encode())
+                _logger.i(f'拒绝握手,已发送')
                 conn.close()
                 
 
@@ -133,17 +147,24 @@ class Client:
                         msg = unpad(cipher.decrypt(msg), BLOCK_SIZE)
                     else:
                         msg = unpad(cipher.decrypt(msg), BLOCK_SIZE).decode('utf-8', errors='ignore')
-                    return msg,conn,self.server
+                    return msg,conn,self.server,addr
                 else:
                     # msg = conn.recv(len(b'correct2\r\n'))
                     if msg == b'correct2\r\n':
-                        self.isFisrt.clear()
-                        _logger.i('已收到对方握手确认')
-                        socket.setdefaulttimeout(None)
-                        conn.settimeout(None)
-                        _logger.i(f'已修改标志位{self.isFisrt.is_set()}')
- 
-                    return msg,conn,self.server
+                        if self.isFisrt.is_set():
+                            self.isFisrt.clear()
+                            _logger.i('已收到对方握手确认')
+                            socket.setdefaulttimeout(None)
+                            conn.settimeout(None)
+                            _logger.i(f'已修改标志位{self.isFisrt.is_set()}')
+                        else:
+                            _logger.i('收到其他握手确认')
+                            return b'wrong_port\r\n',conn,self.server,addr
+                        
+                    elif msg == b'wrong_port\r\n':
+                        self.send_port += 1
+                        _logger.i(f'收到拒绝握手，准备尝试向{self.send_port}握手')
+                    return msg,conn,self.server,addr
             except TimeoutError:
                 pass
             except Exception as e:

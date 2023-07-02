@@ -101,7 +101,7 @@ class ChatGUI(tk.Toplevel):
     def recv_msg(self,event:threading.Event):
         while event.is_set():
             try:
-                msg,send_socket,servre_socket = self.client.recv_msg()
+                msg,send_socket,servre_socket,client_addr = self.client.recv_msg()
             except TypeError:
                 return 0
             try:
@@ -169,7 +169,9 @@ class ChatGUI(tk.Toplevel):
                 friendip = self.friend.ip
                 self.client.send_msg(friendip, message)
                 # self.client.send_msg(friendip, message)
-          
+            elif msg.split('\r\n')[0] == 'wrong_port':
+                message = 'wrong_port\r\n'
+                self.client.send_msg(client_addr[0], message)
                 
 
 
