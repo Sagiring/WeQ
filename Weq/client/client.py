@@ -63,9 +63,10 @@ class Client:
             conn.send((str(len(msg))).encode()+ b'\r\n\r\n' + msg)
         else:
             if msg[:len(b'correct1\r\n')] == 'correct1\r\n' :
-                _logger.i(f'正在检查对方端口')
+                
                 while self.isFisrt:
                     try:
+                        _logger.i(f'正在检查对方端口{self.send_port}')
                         conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                         socket.setdefaulttimeout(1)
                         conn.connect((recv_ip,self.send_port))
