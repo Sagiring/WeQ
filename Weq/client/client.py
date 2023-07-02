@@ -2,6 +2,7 @@
 import socket
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
+import threading
 import traceback
 import time
 BLOCK_SIZE = 16
@@ -13,8 +14,8 @@ class Client:
         self.session_key = session_key
         self.server_port = port
         self.send_port = port
-        self.isFisrt = True
-        self.isSecond = True
+        self.isFisrt = threading.Event()
+        self.isFisrt.set()
         addrs = socket.getaddrinfo(socket.gethostname(), None)
         for item in [addr[4][0] for addr in addrs]:
             if item[:2] == '10':
@@ -65,9 +66,9 @@ class Client:
         else:
             if msg[:len(b'correct1\r\n')] == 'correct1\r\n' :
                 
-                while self.isFisrt:
+                while self.isFisrt.is_set():
                     try:
-                        _logger.d(f'循环标志位为{self.isFisrt}')
+                        _logger.d(f'循环标志位为{self.isFisrt.is_set()}')
                         _logger.i(f'正在检查对方端口{self.send_port}')
                         conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                         socket.setdefaulttimeout(1)
@@ -132,7 +133,7 @@ class Client:
                         _logger.i('已收到对方握手确认')
                         socket.setdefaulttimeout(None)
                         conn.settimeout(None)
-                        self.isFisrt = False
+                        self.isFisrt.clear()
  
                     return msg,conn,self.server
             except TimeoutError:
