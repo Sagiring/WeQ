@@ -16,22 +16,22 @@ class ChatGUI(tk.Toplevel):
         self.friend = friend
         self.pri_key = pri_key
         self.isFirst = True
-        self.isSecond = True
         self.current_user = current_user
         self.messages = messages
-
         self.max_image_width = 400  # 设置图片的最大宽度
         self.max_image_height = 300  # 设置图片的最大高度
         Session = KeyDistribution.get_session_key(friend_ip = friend.ip)
         if Session:
             self.Session_key = Session 
+            self.client = Client(self.Session_key)
+            self.check_port()
         else:
             Distributer = KeyDistribution(pri_key)
             Distributer.get_session_key_from_server(current_user,friend.username)
             self.Session_key = Distributer.send_session_key_to_peer(friend.ip)
-            #self.Distributer = Distributer
+            self.client = Client(self.Session_key)
 
-        self.client = Client(self.Session_key)
+       
         recv_isRunning = threading.Event()
         recv_isRunning.set()
         self.recv_isRunning = recv_isRunning
@@ -66,7 +66,7 @@ class ChatGUI(tk.Toplevel):
 
     # 处理发送消息的逻辑
     def send_message(self):
-        self.check_port()
+        # self.check_port()
             
         message = self.message_entry.get() # 获取用户在文本输入框中输入的消息内容
         if message:
@@ -190,7 +190,6 @@ class ChatGUI(tk.Toplevel):
     # 发送图片
     def select_image(self):
        
-        self.check_port()
         file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.png;*.jpg;*.jpeg")])
         if file_path:
             self.send_image(file_path)

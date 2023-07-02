@@ -28,7 +28,7 @@ class Client:
             except OSError:
                 time.sleep(0.1)
                 port += 1
-        self.server.listen(5)
+        self.server.listen(1)
         # print(f'recv_port:{self.server_port}')
 
     def __del__(self):
