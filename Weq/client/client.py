@@ -67,6 +67,7 @@ class Client:
                 
                 while self.isFisrt:
                     try:
+                        _logger.d(f'循环标志位为{self.isFisrt}')
                         _logger.i(f'正在检查对方端口{self.send_port}')
                         conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                         socket.setdefaulttimeout(1)
