@@ -1,6 +1,7 @@
 import socket
 import json
-
+from ..log import Log
+_logger = Log()
 
 
 def addFriend(username,friendname):
@@ -9,10 +10,10 @@ def addFriend(username,friendname):
     request_addfriend = command + json.dumps(k)
     response_addfriend = send_msg(request_addfriend.encode())# 发送消息给服务器
     if response_addfriend[0] == '0':
-        print("该用户名已在通讯录中！")
+        _logger.i("该用户名已在通讯录中！")
         return False
     else:
-        print("通讯录添加成功！")
+        _logger.i("通讯录添加成功！")
         return True
 
 def deleteFriend(username,friendname):
@@ -21,10 +22,10 @@ def deleteFriend(username,friendname):
     request_deletefriend = command + json.dumps(k)
     response_detelefriend = send_msg(request_deletefriend.encode()) # 发送消息给服务器
     if response_detelefriend[0] == '0':
-        print("用户名删除失败！")
+        _logger.i("用户名删除失败！")
         return False
     else:
-        print("用户名删除成功！")
+        _logger.i("用户名删除成功！")
         return True
 
 def getFriends(username):
@@ -33,12 +34,12 @@ def getFriends(username):
     request_getfriends = command + json.dumps(k)
      # 发送消息给服务器
     response_getfriends = send_msg(request_getfriends.encode()) # 接收服务器的响应
-    # print(response_getfriends)
+    # _logger.i(response_getfriends)
     if response_getfriends[0] == '0':
-        # print("通讯录返回失败！")
+        # _logger.i("通讯录返回失败！")
         return False
     else:
-        # print("通讯录返回成功！")
+        # _logger.i("通讯录返回成功！")
        
         return friendstuple(response_getfriends)
 

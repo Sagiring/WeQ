@@ -7,26 +7,29 @@ from Crypto import Random
 from Crypto.PublicKey import RSA
 import time
 import random
+from ..log import Log
+_logger = Log()
+
 
 def register(username,password,email,code):
     k=check_password(password)
     if k == 2:
-        #print('密码格式错误')
+        _logger.i('密码格式错误')
         return False
     md=hashlib.md5(password.encode('utf-8'))
     md=md.hexdigest()
     if code!=verification_code:
-        #print('邮箱验证失败')
+        _logger.i('邮箱验证失败')
         return False
     request = { "user": username, "passwd": md, "email": email}
     command = 'register\r\n\r\n'
     request_register = command + json.dumps(request)
     response_register = send_msg(request_register.encode())  # 发送消息给服务器
     if response_register[0] == '0':
-        #print("该用户名已被注册！")
+        _logger.i("该用户名已被注册！")
         return  False
     else:
-        #print("注册成功！")
+        _logger.i("注册成功！")
         return  True
 
 def login(username,passwd):
@@ -36,12 +39,12 @@ def login(username,passwd):
     command = 'login\r\n\r\n'
     request_login = command + json.dumps(request)
     response_login = send_msg(request_login.encode())  # 发送消息给服务器
-    # #print(response_login)
+    # _logger.i(response_login)
     if response_login[0] == '0':
-        #print("用户名或密码错误！")
+        _logger.i("用户名或密码错误！")
         return False
     else:
-        #print("登录成功！")
+        _logger.i("登录成功！")
         return True
 
 
@@ -53,10 +56,10 @@ def addPubkey(username):
     while True:
         response_pubkey = send_msg(request.encode())  # 发送消息给服务器
         if response_pubkey[0] == '0':
-            #print("公钥添加失败！")
+            _logger.i("公钥添加失败！")
             return False
         else:
-            #print("公钥添加成功！")
+            _logger.i("公钥添加成功！")
             return Privkey
 
 def close(username):
@@ -65,10 +68,10 @@ def close(username):
     request = command + json.dumps(t)
     response_close = send_msg(request.encode())  # 发送消息给服务器
     if response_close[0] == '0':
-        #print("退出失败！")
+        _logger.i("上传退出状态")
         return False
     else:
-        #print("退出成功！")
+        _logger.i("上传退出状态")
         return True
 
 
@@ -137,12 +140,12 @@ def send_email(address,email_message):
 
             # 接收服务器返回的连接信息
             response = client_socket.recv(1024).decode()
-            #print(response)
+            _logger.i(response)
 
             ehlo = "ehlo smtp.qq.com\r\n"
             client_socket.send(ehlo.encode())
             response = client_socket.recv(1024).decode()
-            #print(response)
+            _logger.i(response)
 
             auth = f"auth login\r\n"
             client_socket.send(auth.encode())
@@ -159,13 +162,13 @@ def send_email(address,email_message):
             mail_from_command = f'mail from: <{sender_email}>\r\n'
             client_socket.send(mail_from_command.encode())
             response = client_socket.recv(1024).decode()
-            #print(response)
+            _logger.i(response)
 
             # 发送收件人信息
             rcpt_to_command = f'rcpt to: <{recipient_email}>\r\n'
             client_socket.send(rcpt_to_command.encode())
             response = client_socket.recv(1024).decode()
-            #print(response)
+            _logger.i(response)
 
             # 发送数据命令
             data_command = 'data\r\n'
@@ -190,12 +193,12 @@ def send_email(address,email_message):
             quit_command = 'QUIT\r\n'
             client_socket.send(quit_command.encode())
             response = client_socket.recv(1024).decode()
-            #print(response)
+            _logger.i(response)
 
-        #print('邮件发送成功')
+        _logger.i('邮件发送成功')
         return True
     except Exception as e:
-        #print('邮件发送失败:', str(e))
+        _logger.i('邮件发送失败:', str(e))
         return False
 
 
