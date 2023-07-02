@@ -9,6 +9,8 @@ import json
 from ..client import KeyDistribution,LSB
 import threading
 import time
+from ..log import Log
+_logger = Log()
 
 class Friend:
     def __init__(self, username, ip, port):
@@ -104,16 +106,16 @@ class FriendListGUI:
         while self.isRunning.is_set():
             conn, addr = server.accept()
             data = json.loads(conn.recv(4096).decode('utf-8'))
-            print('已收到密钥')
+            _logger.i('已收到密钥')
             if data['action'] == 'chat':
-                print('存储密钥')
+                _logger.i('存储密钥')
                 self.session_key = KeyDistribution.get_session_key_from_peer(self.pri_key,data,addr)
                 for item in self.friends:
-                    # print(item.ip)
-                    # print(addr[0])
+                    # _logger.i(item.ip)
+                    # _logger.i(addr[0])
                     if item.ip == addr[0]:
                         item.unread_messages += 1
-                        print('更新请求连接')
+                        _logger.i('更新请求连接')
                 self.refresh_friends()
 
     #加密信息
@@ -334,7 +336,7 @@ class FriendListGUI:
         
         self.friends =  []
         friend_list = getFriends(self.current_user)
-        # print(friend_list)
+        # _logger.i(friend_list)
         if friend_list:
             for item in friend_list:
                 friend = Friend(item[0], item[1], item[2])
