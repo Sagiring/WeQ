@@ -67,8 +67,10 @@ class Client:
                 self.isFisrt.set()
                 while self.isFisrt.is_set():
                     try:
-                        _logger.d(f'循环标志位为{self.isFisrt.is_set()}')
+                        # _logger.d(f'循环标志位为{self.isFisrt.is_set()}')
                         _logger.i(f'正在检查对方端口{self.send_port}')
+                        if self.send_port > 8900:
+                            self.send_port = 8888
                         conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                         socket.setdefaulttimeout(1)
                         conn.connect((recv_ip,self.send_port))
@@ -85,8 +87,7 @@ class Client:
                     except OSError:
                         conn.close()
                         self.send_port += 1
-                        if self.send_port > 8900:
-                            self.send_port = 8888
+                        
                 _logger.i(f'已确认对方端口号为{self.send_port}')
             elif msg == 'correct2\r\n':
                 conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
