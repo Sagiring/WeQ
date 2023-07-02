@@ -135,10 +135,10 @@ class ChatGUI(tk.Toplevel):
                 # self.add_message(self.friend.username, timestamp, msg)
             elif msg.split('\r\n')[0] == 'close1':
                 self.close1()
-            elif msg.split('\r\n')[0] == 'ACK1':
-                
+            elif msg.split('\r\n')[0] == 'FIN1':
+                self.recv_isRunning.clear()
                 _logger.i('接收FIN1请求')
-                message = 'ACK2\r\n'
+                message = 'FIN2\r\n'
                 friendip = self.friend.ip
                 self.client.send_msg(friendip, message)
                 KeyDistribution.pop_session_key(self.friend.ip)
@@ -149,7 +149,7 @@ class ChatGUI(tk.Toplevel):
                     pass
                 send_socket.close()
                 servre_socket.close()
-            elif msg.split('\r\n')[0] == 'ACK2':
+            elif msg.split('\r\n')[0] == 'FIN2':
                 self.recv_isRunning.clear()
                 _logger.i('接收FIN2请求')
                 KeyDistribution.pop_session_key(self.friend.ip)
@@ -159,6 +159,8 @@ class ChatGUI(tk.Toplevel):
                     pass
                 send_socket.close()
                 servre_socket.close()
+
+
             elif msg.split('\r\n')[0] == 'correct1':
                 _logger.i('收到请求握手SYN')
                 port = int(msg.split('\r\n')[1])
@@ -181,16 +183,14 @@ class ChatGUI(tk.Toplevel):
         message = 'close1\r\n'
         friendip = self.friend.ip
         self.client.send_msg(friendip, message)
-        self.recv_isRunning.clear()
         self.destroy()
         # _thread.exit()
 
 
     def close1(self):
-        message = 'ACK1\r\n'
+        message = 'FIN1\r\n'
         friendip = self.friend.ip
         self.client.send_msg(friendip, message)
-        self.recv_isRunning.clear()
         self.destroy()
         messagebox.showinfo('提示', '对方终止了聊天')
         # _thread.exit()

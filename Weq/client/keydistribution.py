@@ -104,7 +104,7 @@ class KeyDistribution:
         for item in list(KeyDistribution._All_session_key.keys()):
                 if f'{selfip},{friend_ip}' == item:
                     KeyDistribution._All_session_key.pop(item)
-                    print('本次密钥已删除')
+                    print('[info] 本次密钥已删除')
 
     @staticmethod
     def get_selfip():
