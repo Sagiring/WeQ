@@ -68,9 +68,10 @@ class Client:
                 while self.isFisrt.is_set():
                     try:
                         # _logger.d(f'循环标志位为{self.isFisrt.is_set()}')
-                        _logger.i(f'正在检查对方端口{self.send_port}')
+                        
                         if self.send_port > 8900:
                             self.send_port = 8888
+                        _logger.i(f'正在检查对方端口{self.send_port}')
                         conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                         socket.setdefaulttimeout(1)
                         conn.connect((recv_ip,self.send_port))
@@ -140,7 +141,9 @@ class Client:
                     msg += data
                     Len += len(data)
                     
-                if msg[:len(b'correct1\r\n')] != b'correct1\r\n' and msg != b'correct2\r\n':
+                if msg[:len(b'correct1\r\n')] != b'correct1\r\n' \
+                and msg != b'correct2\r\n' \
+                and msg != b'wrong_port\r\n':
                     # _logger.i(len(msg))
                     key = self.session_key
                     cipher = AES.new(key, AES.MODE_ECB)
