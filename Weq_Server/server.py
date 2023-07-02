@@ -16,6 +16,7 @@ def server():
     http_port = 16666
     server_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         #                           地址簇 IPv4         使用TCP传输控制协议
+    server_socket.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
     while 1:
         try:
             server_socket.bind((http_ip,http_port))

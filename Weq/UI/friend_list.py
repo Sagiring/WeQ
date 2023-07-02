@@ -84,6 +84,7 @@ class FriendListGUI:
         isRunning.set()
         self.isRunning = isRunning
         key_threading = threading.Thread(target=self.key_server)
+        key_threading.daemon = True
         key_threading.start()
         self.key_threading = key_threading
         refresh = threading.Thread(target=self.auto_fresh)
@@ -423,8 +424,8 @@ class FriendListGUI:
     def close(self):
         close(self.current_user)
         self.isRunning.clear()
+        self.root.destroy()
         self.root.quit()
-        self.key_threading.join()
         self.refresh_threading.join()
         sys.exit(0)
         
