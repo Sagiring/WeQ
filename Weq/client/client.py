@@ -15,7 +15,6 @@ class Client:
         self.server_port = port
         self.send_port = port
         self.isFisrt = threading.Event()
-        self.isFisrt.set()
         addrs = socket.getaddrinfo(socket.gethostname(), None)
         for item in [addr[4][0] for addr in addrs]:
             if item[:2] == '10':
@@ -65,7 +64,7 @@ class Client:
             conn.send((str(len(msg))).encode()+ b'\r\n\r\n' + msg)
         else:
             if msg[:len(b'correct1\r\n')] == 'correct1\r\n' :
-                
+                self.isFisrt.set()
                 while self.isFisrt.is_set():
                     try:
                         _logger.d(f'循环标志位为{self.isFisrt.is_set()}')
@@ -75,7 +74,7 @@ class Client:
                         conn.connect((recv_ip,self.send_port))
                         conn.settimeout(1)
                         conn.send((str(len(msg))).encode()+ b'\r\n\r\n' +msg.encode())
-                        time.sleep(1.5)
+                        time.sleep(2)
 
                     except ConnectionRefusedError:
                         time.sleep(0.1)
@@ -86,20 +85,23 @@ class Client:
                     except OSError:
                         conn.close()
                         self.send_port += 1
-                        if self.send_port > 9000:
+                        if self.send_port > 8900:
                             self.send_port = 8888
                 _logger.i(f'已确认对方端口号为{self.send_port}')
             else:
                 conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                _logger.i(f'已收到握手请求,正在确认')
                 while 1:
                     try:
+                        _logger.i(f'确认握手,正在发送')
                         conn.connect((recv_ip,self.send_port))
                         break
                     except TimeoutError:
                         time.sleep(0.5)
                 conn.send((str(len(msg))).encode()+ b'\r\n\r\n' +msg.encode())
+                _logger.i(f'确认握手,已发送')
                 conn.close()
-                _logger.i(f'已收到握手请求,正在确认')
+                
 
                 
                     
@@ -135,10 +137,11 @@ class Client:
                 else:
                     # msg = conn.recv(len(b'correct2\r\n'))
                     if msg == b'correct2\r\n':
+                        self.isFisrt.clear()
                         _logger.i('已收到对方握手确认')
                         socket.setdefaulttimeout(None)
                         conn.settimeout(None)
-                        self.isFisrt.clear()
+                        _logger.i(f'已修改标志位{self.isFisrt.is_set()}')
  
                     return msg,conn,self.server
             except TimeoutError:
