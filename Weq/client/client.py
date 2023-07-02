@@ -91,7 +91,12 @@ class Client:
                 _logger.i(f'已确认对方端口号为{self.send_port}')
             else:
                 conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                conn.connect((recv_ip,self.send_port))
+                while 1:
+                    try:
+                        conn.connect((recv_ip,self.send_port))
+                        break
+                    except TimeoutError:
+                        time.sleep(0.5)
                 conn.send((str(len(msg))).encode()+ b'\r\n\r\n' +msg.encode())
                 conn.close()
                 _logger.i(f'已收到握手请求,正在确认')
