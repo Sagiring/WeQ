@@ -9,6 +9,7 @@ import json
 from ..client import KeyDistribution,LSB
 import threading
 import time
+import sys
 from ..log import Log
 _logger = Log()
 
@@ -422,5 +423,6 @@ class FriendListGUI:
         self.isRunning.clear()
         self.root.destroy()
         self.root.quit()
+        sys.exit(0)
         
 
