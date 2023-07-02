@@ -174,7 +174,10 @@ class SuccessPage(tk.Frame):
         self.label_success = tk.Label(self, text="登录成功！")
         self.label_success.pack()
 
-if __name__ == "__main__":
 
+def main():
     app = InstantMessengerApp()
     app.mainloop()
+    app.quit()
+
+main()

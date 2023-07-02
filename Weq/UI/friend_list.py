@@ -85,12 +85,6 @@ class FriendListGUI:
         refresh = threading.Thread(target=self.auto_fresh)
         refresh.start()
 
-    def close(self):
-        result = close(self.current_user)
-        self.isRunning.clear()
-        self.root.destroy()
-        exit(0)
-        
 
     def auto_fresh(self):
         while self.isRunning.is_set():
@@ -420,22 +414,11 @@ class FriendListGUI:
         self.friend_listbox.bind("<Double-Button-1>",self.open_chat_window)
         self.root.mainloop()
 
-    # def run(self):
-    #     self.root.mainloop()
+    
+    def close(self):
+        result = close(self.current_user)
+        self.isRunning.clear()
+        self.root.destroy()
+        self.root.quit()
+        
 
-if __name__ == "__main__":
-    friend_list_gui = FriendListGUI()
-    # friend_list_gui.current_user = "Alice"  # 设置当前用户的用户名
-    # friend_list_gui.friends = [
-    #     Friend("Bob", "192.168.0.2", 5678),
-    #     Friend("Charlie", "192.168.0.3", 9012),
-    #     Friend("David", "192.168.0.4", 3456)
-    # ]
-
-    # # 模拟一些在线状态和最新消息的更新
-    # friend_list_gui.set_online_status("Bob", True)
-    # friend_list_gui.set_online_status("Charlie", True)
-    # friend_list_gui.set_latest_message("Bob", "你好，Alice")
-    # friend_list_gui.set_latest_message("Charlie", "今天天气不错")
-
-    friend_list_gui.run()

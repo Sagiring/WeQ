@@ -6,7 +6,8 @@ from ..client import KeyDistribution,Client
 import threading
 import time
 import socket
-
+from ..log import Log
+_logger = Log()
 
 class ChatGUI(tk.Toplevel):
     def __init__(self, parent, current_user, messages,friend,pri_key):
@@ -134,7 +135,7 @@ class ChatGUI(tk.Toplevel):
                 self.close1()
             elif msg.split('\r\n')[0] == 'ACK1':
                 
-                print('接收ACK1')
+                _logger.i('接收FIN1请求')
                 message = 'ACK2\r\n'
                 friendip = self.friend.ip
                 self.client.send_msg(friendip, message)
@@ -148,19 +149,19 @@ class ChatGUI(tk.Toplevel):
                 servre_socket.close()
             elif msg.split('\r\n')[0] == 'ACK2':
                 self.recv_isRunning.clear()
-                print('接收ACK2')
+                _logger.i('接收FIN2请求')
                 KeyDistribution.pop_session_key(self.friend.ip)
                 try:
                     servre_socket.shutdown(socket.SHUT_RDWR)
-                    
                 except OSError:
                     pass
                 send_socket.close()
                 servre_socket.close()
             elif msg.split('\r\n')[0] == 'correct1':
-                print('收到correct1')
-                self.client.modify_send_port(int(msg.split('\r\n')[1]))
-                print('收到发送方端口')
+                _logger.i('收到请求握手SYN')
+                port = int(msg.split('\r\n')[1])
+                self.client.modify_send_port(port)
+                _logger.i(f'收到请求握手方端口{port}')
                 self.isFirst = False
                 message = 'correct2\r\n'
                 friendip = self.friend.ip
